@@ -1,0 +1,157 @@
+name: lakewire
+
+x-env: &env
+  KAFKA_BOOTSTRAP: kafka:9092
+  S3_ENDPOINT: http://minio:9000
+  S3_HOSTPORT: minio:9000
+  MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
+  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+  LAKE_BUCKET: ${LAKE_BUCKET:-lake}
+  USER_AGENT: ${USER_AGENT:-Lakewire/1.0 (set USER_AGENT in .env)}
+  WIKIS: ${WIKIS:-enwiki,dewiki,frwiki,eswiki,jawiki}
+  PAGEVIEW_DOMAINS: ${PAGEVIEW_DOMAINS:-en,en.m}
+  PAGEVIEW_TOP_N: ${PAGEVIEW_TOP_N:-50000}
+  PAGEVIEWS_START_DATE: ${PAGEVIEWS_START_DATE:-2026-11-10}
+  BRONZE_RETENTION_DAYS: ${BRONZE_RETENTION_DAYS:-14}
+  SILVER_RETENTION_DAYS: ${SILVER_RETENTION_DAYS:-120}
+  SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+
+services:
+  kafka:
+    image: apache/kafka:3.8.1
+    restart: unless-stopped
+    mem_limit: 1536m
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 48
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx1g"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  kafka-init:
+    image: apache/kafka:3.8.1
+    depends_on:
+      kafka: {condition: service_healthy}
+    restart: "no"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic wiki.edits.raw --partitions 3 --replication-factor 1 --config retention.ms=172800000
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic wiki.edits.dlq --partitions 1 --replication-factor 1 --config retention.ms=604800000
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    mem_limit: 1g
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on: [minio]
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 2; done
+        mc mb --ignore-existing local/$${LAKE_BUCKET}
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+      LAKE_BUCKET: ${LAKE_BUCKET:-lake}
+
+  producer:
+    build: {context: ., dockerfile: docker/producer.Dockerfile}
+    restart: unless-stopped
+    mem_limit: 256m
+    depends_on:
+      kafka-init: {condition: service_completed_successfully}
+    environment: *env
+    ports: ["127.0.0.1:8000:8000"]
+
+  spark-stream:
+    build: {context: ., dockerfile: docker/spark.Dockerfile}
+    restart: unless-stopped
+    mem_limit: 4g
+    depends_on:
+      kafka-init: {condition: service_completed_successfully}
+      minio-init: {condition: service_completed_successfully}
+    environment:
+      <<: *env
+      SPARK_DRIVER_MEMORY: 2g
+    ports: ["127.0.0.1:8001:8001"]
+
+  airflow:
+    build: {context: ., dockerfile: docker/airflow.Dockerfile}
+    restart: unless-stopped
+    mem_limit: 6g
+    command: standalone
+    depends_on:
+      minio-init: {condition: service_completed_successfully}
+    environment:
+      <<: *env
+      SPARK_DRIVER_MEMORY: 3g
+    volumes:
+      - airflow-home:/opt/airflow
+      - appdata:/data
+    ports: ["127.0.0.1:8080:8080"]
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    restart: unless-stopped
+    mem_limit: 128m
+    command: ["--kafka.server=kafka:9092"]
+    depends_on:
+      kafka: {condition: service_healthy}
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    mem_limit: 512m
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=15d"]
+    ports: ["127.0.0.1:9090:9090"]
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me-too}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:3000:3000"]
+
+volumes:
+  kafka-data:
+  minio-data:
+  airflow-home:
+  appdata:
+  prometheus-data:
+  grafana-data:

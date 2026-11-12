@@ -1,0 +1,4 @@
+confluent-kafka==2.6.1
+jsonschema==4.23.0
+requests==2.32.3
+prometheus-client==0.21.1

@@ -1,0 +1,26 @@
+lakewire:
+  target: prod
+  outputs:
+    prod:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '/data/warehouse/lakewire.duckdb') }}"
+      threads: 2
+      extensions: [httpfs, delta]
+      settings:
+        TimeZone: UTC
+      # A DuckDB secret (not legacy s3_* settings) so the delta extension picks up the credentials.
+      secrets:
+        - type: s3
+          provider: config
+          key_id: "{{ env_var('MINIO_ROOT_USER', 'lakewire') }}"
+          secret: "{{ env_var('MINIO_ROOT_PASSWORD', 'change-me-please') }}"
+          region: us-east-1
+          endpoint: "{{ env_var('S3_HOSTPORT', 'minio:9000') }}"
+          url_style: path
+          use_ssl: false
+    ci:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'ci.duckdb') }}"
+      threads: 2
+      settings:
+        TimeZone: UTC

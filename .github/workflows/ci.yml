@@ -1,0 +1,113 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest -q
+
+  dbt-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install dbt-duckdb==1.11.1 duckdb==2.0.0
+      - name: dbt build on parquet fixtures (models, incremental path and tests)
+        working-directory: dbt
+        env:
+          DBT_FIXTURES_DIR: ../tests/fixtures
+          DUCKDB_PATH: ci.duckdb
+        run: |
+          dbt build --target ci --profiles-dir .
+          dbt build --target ci --profiles-dir .   # second run exercises the incremental branch
+
+  end-to-end:
+    # Real Kafka + MinIO + Spark + Delta + DuckDB, in the same containers production uses.
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      COMPOSE: docker compose -f docker-compose.yml -f docker-compose.ci.yml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install dbt-duckdb==1.11.1 duckdb==2.0.0
+      - name: Validate compose file
+        run: $COMPOSE config -q
+      - name: Start Kafka and MinIO
+        run: |
+          $COMPOSE up -d --wait kafka minio
+          $COMPOSE run --rm kafka-init
+          $COMPOSE run --rm minio-init
+      - name: Build images
+        run: $COMPOSE build producer spark-stream
+      - name: Replay fixture events through the producer (run 1)
+        run: $COMPOSE run --rm --no-deps producer python -m lakewire.producer --replay /app/tests/fixtures/sample_events.jsonl
+      - name: Stream Kafka to Bronze and Silver (run 1)
+        run: $COMPOSE run --rm --no-deps spark-stream python -m lakewire.streaming.edits_stream --once
+      - name: Assert counts (run 1)
+        run: $COMPOSE run --rm --no-deps spark-stream python scripts/smoke_check.py tests/fixtures/expected.json 1
+      - name: Replay the same events again and re-stream (idempotency proof)
+        run: |
+          $COMPOSE run --rm --no-deps producer python -m lakewire.producer --replay /app/tests/fixtures/sample_events.jsonl
+          $COMPOSE run --rm --no-deps spark-stream python -m lakewire.streaming.edits_stream --once
+      - name: Assert Silver unchanged, Bronze and DLQ doubled (run 2)
+        run: $COMPOSE run --rm --no-deps spark-stream python scripts/smoke_check.py tests/fixtures/expected.json 2
+      - name: Seed pageviews Delta table
+        run: $COMPOSE run --rm --no-deps spark-stream python scripts/seed_pageviews.py /app/tests/fixtures/pageviews.parquet
+      - name: dbt build against Delta on MinIO (production target)
+        working-directory: dbt
+        env:
+          S3_HOSTPORT: localhost:9000
+          MINIO_ROOT_USER: lakewire
+          MINIO_ROOT_PASSWORD: change-me-please
+          LAKE_BUCKET: lake
+          DUCKDB_PATH: /tmp/smoke.duckdb
+        run: dbt build --target prod --profiles-dir .
+      - name: Export dashboard snapshot and check it
+        env:
+          DUCKDB_PATH: /tmp/smoke.duckdb
+          EXPORT_DIR: /tmp/exports
+        run: |
+          PYTHONPATH=. python -m lakewire.export
+          python - <<'PY'
+          import json
+          h = json.load(open("/tmp/exports/health.json"))["rows"][0]
+          assert h["events_total"] == 12, h
+          print("health ok:", h)
+          PY
+      - name: Show logs on failure
+        if: failure()
+        run: $COMPOSE logs --tail=200
+      - name: Tear down
+        if: always()
+        run: $COMPOSE down -v

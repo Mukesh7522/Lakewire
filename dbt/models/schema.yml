@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_edits
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: event_ts
+        tests: [not_null]
+      - name: wiki
+        tests: [not_null]
+      - name: event_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['edit', 'new']
+
+  - name: stg_pageviews
+    columns:
+      - name: page_title
+        tests: [not_null]
+      - name: views
+        tests: [not_null]
+
+  - name: mart_bot_vs_human
+    columns:
+      - name: row_key
+        tests: [not_null, unique]
+      - name: edits_total
+        tests: [not_null]
+
+  - name: mart_edit_conflict_signals
+    columns:
+      - name: row_key
+        tests: [not_null, unique]
+
+  - name: mart_trending_articles
+    columns:
+      - name: row_key
+        tests: [not_null, unique]
+      - name: trend_score
+        tests: [not_null]
+
+  - name: mart_pipeline_health
+    columns:
+      - name: latest_event_ts
+        tests: [not_null]

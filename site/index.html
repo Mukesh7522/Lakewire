@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Lakewire: a self-hosted Kafka, Spark and Delta Lake pipeline turning live Wikipedia activity into an interactive dashboard.">
+<title>Lakewire · live Wikipedia lakehouse</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1118'/%3E%3Cpath d='M4 19c4-7 7-7 10 0s6 7 10 0 3-4 4-5' fill='none' stroke='%233DDBC0' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#06090e;--bg2:#0b1119;--card:rgba(255,255,255,.035);--card-h:rgba(255,255,255,.06);
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.16);
+  --tx:#e8eef5;--mu:#8fa1b6;--dim:#5d6f84;
+  --teal:#3ddbc0;--amb:#ffb547;--blue:#8ab4ff;--vio:#c792ea;--red:#ff8a80;--grn:#8be28b;
+  --r:18px;--ease:cubic-bezier(.2,.8,.2,1);
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+
+/* ambient background */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(1200px 700px at 80% -10%,#0d2a30 0%,transparent 60%),radial-gradient(900px 600px at -10% 20%,#1a1633 0%,transparent 55%),var(--bg)}
+.bg::before{content:"";position:absolute;inset:-50%;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;transform:perspective(900px) rotateX(58deg) translateY(-12%);mask-image:radial-gradient(closest-side,#000 10%,transparent 75%);animation:drift 40s linear infinite}
+.bg i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.28;animation:float 22s ease-in-out infinite}
+.bg i:nth-child(1){width:420px;height:420px;background:var(--teal);left:62%;top:-120px}
+.bg i:nth-child(2){width:360px;height:360px;background:var(--vio);left:-90px;top:38%;animation-delay:-8s}
+.bg i:nth-child(3){width:300px;height:300px;background:var(--amb);left:70%;top:72%;animation-delay:-14s;opacity:.14}
+@keyframes drift{to{background-position:0 56px}}
+@keyframes float{50%{transform:translate(40px,-30px) scale(1.12)}}
+#progress{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--teal),var(--blue),var(--vio));z-index:60}
+
+/* top bar */
+header.top{position:sticky;top:0;z-index:50;backdrop-filter:blur(16px) saturate(1.4);background:rgba(6,9,14,.68);border-bottom:1px solid var(--bd)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:18px;color:var(--tx)}
+.brand:hover{text-decoration:none}
+.brand svg{width:30px;height:30px}
+nav.links{display:flex;gap:4px;margin-left:12px}
+nav.links a{color:var(--mu);padding:7px 12px;border-radius:999px;font-size:14px;transition:.2s}
+nav.links a:hover{color:var(--tx);background:var(--card);text-decoration:none}
+nav.links a.on{color:var(--tx);background:var(--card-h)}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);font-size:13px;color:var(--mu);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);position:relative}
+.pill[data-s=live] .dot{background:var(--teal);box-shadow:0 0 12px var(--teal)}
+.pill[data-s=live] .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--teal);animation:ping 2s ease-out infinite}
+.pill[data-s=stale] .dot{background:var(--red);box-shadow:0 0 12px var(--red)}
+.pill[data-s=demo] .dot{background:var(--amb);box-shadow:0 0 12px var(--amb)}
+.pill b{color:var(--tx);font-weight:600}
+@keyframes ping{from{transform:scale(.6);opacity:1}to{transform:scale(1.8);opacity:0}}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:var(--card);display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{background:var(--card-h);border-color:var(--bd2)}
+.icon-btn svg{width:17px;height:17px}
+.icon-btn.spin svg{animation:spin .8s linear}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+main{max-width:1240px;margin:0 auto;padding:0 24px 40px}
+section{padding-top:56px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+h2{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;letter-spacing:-.02em;line-height:1.15}
+.lede{color:var(--mu);max-width:720px;margin:0 0 24px}
+
+/* hero */
+.hero{padding-top:56px}
+h1{font-size:clamp(40px,7vw,84px);line-height:1;letter-spacing:-.04em;margin:14px 0 18px;font-weight:800}
+h1 span{background:linear-gradient(95deg,var(--teal) 10%,var(--blue) 55%,var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:shine 9s ease-in-out infinite alternate}
+@keyframes shine{to{background-position:100% 0}}
+.hero p.lede{font-size:18px;max-width:760px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.tag{font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--mu)}
+.notice{display:none;margin:22px 0 0;padding:13px 16px;border-radius:14px;border:1px solid;font-size:14px;gap:12px;align-items:flex-start}
+.notice.show{display:flex}
+.notice.warn{border-color:rgba(255,138,128,.4);background:rgba(255,138,128,.08);color:#ffb3ac}
+.notice.demo{border-color:rgba(255,181,71,.4);background:rgba(255,181,71,.08);color:#ffd08a}
+.notice b{color:inherit}
+
+/* cards */
+.card{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:22px;overflow:hidden;transition:border-color .3s,background .3s}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(61,219,192,.11),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover{border-color:var(--bd2)}
+.card:hover::before{opacity:1}
+.card h3{margin:0 0 4px;font-size:16px;letter-spacing:-.01em}
+.card .sub{margin:0 0 16px;color:var(--mu);font-size:13px}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(4,1fr);margin-top:30px}
+.kpi .l{font-size:13px;color:var(--mu);display:flex;align-items:center;gap:8px}
+.kpi .k{font-size:clamp(28px,3.2vw,40px);font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:10px 0 12px}
+.kpi svg.sp{width:100%;height:46px;display:block}
+.ecg{stroke-dasharray:.3 .7;animation:ecg 2.4s linear infinite;filter:drop-shadow(0 0 4px #3ddbc0)}
+@keyframes ecg{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.kpi .foot{font-size:12px;color:var(--dim);margin-top:6px;font-family:var(--mono)}
+.two{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+
+/* controls */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.seg{display:inline-flex;padding:3px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.25)}
+.seg button{border:0;background:transparent;color:var(--mu);padding:6px 14px;border-radius:999px;font-size:13px;transition:.2s}
+.seg button[aria-pressed=true]{background:var(--card-h);color:var(--tx);box-shadow:inset 0 0 0 1px var(--bd2)}
+.wchip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;border:1px solid var(--bd);background:transparent;color:var(--mu);font-size:13px;transition:.2s}
+.wchip i{width:9px;height:9px;border-radius:50%;background:var(--c);transition:.2s}
+.wchip[aria-pressed=false]{opacity:.5}
+.wchip[aria-pressed=false] i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--c)}
+.wchip[aria-pressed=true]{color:var(--tx);border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,transparent)}
+.wchip:hover{opacity:1}
+
+/* chart */
+#chart{position:relative;height:330px}
+#chart svg{width:100%;height:100%;display:block;overflow:visible}
+#chart text{fill:var(--dim);font-size:11px;font-family:var(--mono)}
+.gl{stroke:rgba(255,255,255,.06);stroke-width:1}
+.bar-r{transform-box:fill-box;transform-origin:50% 100%;animation:grow .7s var(--ease) both;animation-delay:calc(var(--i)*9ms)}
+@keyframes grow{from{transform:scaleY(0)}}
+.line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;animation:draw 1.2s var(--ease) both}
+@keyframes draw{from{stroke-dashoffset:1}}
+.noanim .bar-r,.noanim .line{animation:none}
+.tip{position:fixed;z-index:100;pointer-events:none;min-width:150px;padding:10px 12px;border-radius:12px;background:rgba(10,15,22,.94);border:1px solid var(--bd2);backdrop-filter:blur(10px);font-size:12.5px;box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.on{opacity:1;transform:none}
+.tip .th{color:var(--mu);font-family:var(--mono);font-size:11.5px;margin-bottom:6px}
+.tip .tr{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:1px 0}
+.tip .tr span{display:inline-flex;align-items:center;gap:7px;color:var(--mu)}
+.tip .tr i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.tip .tr b{font-variant-numeric:tabular-nums}
+
+/* donut + wiki list */
+.donut{display:grid;place-items:center;position:relative;margin:0 auto 14px;width:170px;height:170px}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut circle{fill:none;stroke-width:16;transition:stroke-dasharray .8s var(--ease),stroke-dashoffset .8s var(--ease)}
+.donut .mid{position:absolute;text-align:center;line-height:1.1}
+.donut .mid b{font-size:30px;letter-spacing:-.03em}
+.donut .mid span{display:block;font-size:11.5px;color:var(--mu);margin-top:3px}
+.leg{display:flex;justify-content:center;gap:18px;font-size:13px;color:var(--mu);margin-bottom:16px}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.wl{display:flex;flex-direction:column;gap:6px}
+.wrow{display:grid;grid-template-columns:78px 1fr auto;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;border:0;background:transparent;text-align:left;transition:.2s}
+.wrow:hover{background:var(--card-h)}
+.wrow[aria-pressed=false]{opacity:.4}
+.wrow .nm{display:flex;align-items:center;gap:8px;font-size:13px}
+.wrow .nm i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.wrow .tr{height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.wrow .tr b{display:block;height:100%;border-radius:99px;background:var(--c);transition:width .8s var(--ease)}
+.wrow .v{font-size:12px;color:var(--mu);min-width:64px;text-align:right}
+
+/* heatmap */
+.hm{display:grid;gap:3px;align-items:center}
+.hm .rl{font-size:12px;color:var(--mu);padding-right:8px;white-space:nowrap}
+.hm .c{height:22px;border-radius:4px;background:rgba(255,255,255,.04);transition:transform .15s,box-shadow .15s}
+.hm .c:hover{transform:scale(1.35);box-shadow:0 0 0 1px var(--tx);position:relative;z-index:2}
+
+/* tables */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.search{flex:1 1 220px;max-width:340px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1px solid var(--bd);background:rgba(0,0,0,.25);transition:.2s}
+.search:focus-within{border-color:var(--teal)}
+.search input{all:unset;flex:1;font-size:14px;min-width:0}
+.search input::placeholder{color:var(--dim)}
+.search kbd{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--bd);border-radius:5px;padding:0 6px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:600;text-align:left;padding:8px 10px;white-space:nowrap}
+th button{all:unset;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
+th button:hover{color:var(--tx)}
+th button:focus-visible{outline:2px solid var(--teal);border-radius:4px}
+th[aria-sort=ascending] button::after{content:"▲";font-size:8px;color:var(--teal)}
+th[aria-sort=descending] button::after{content:"▼";font-size:8px;color:var(--teal)}
+td{padding:11px 10px;border-top:1px solid var(--bd);vertical-align:middle}
+tr.r{transition:background .2s;animation:rowin .5s var(--ease) both;animation-delay:calc(var(--i)*22ms)}
+@keyframes rowin{from{opacity:0;transform:translateY(8px)}}
+tr.r:hover{background:var(--card)}
+th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+.rank{color:var(--dim);font-family:var(--mono);font-size:12px;width:34px}
+.title a{color:var(--tx);font-weight:500}
+.title a:hover{color:var(--teal)}
+.meter{height:5px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden}
+.meter b{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--blue));transform-origin:0 50%;animation:mgrow .9s var(--ease) both;animation-delay:calc(var(--i)*22ms + 150ms)}
+.meter.am b{background:linear-gradient(90deg,var(--amb),var(--red))}
+@keyframes mgrow{from{transform:scaleX(0)}}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.b-hot{background:rgba(255,181,71,.14);color:var(--amb)}
+.b-up{background:rgba(61,219,192,.13);color:var(--teal)}
+.b-dn{background:rgba(255,138,128,.12);color:var(--red)}
+.b-na{background:rgba(255,255,255,.06);color:var(--mu)}
+.wb{font-family:var(--mono);font-size:11.5px;padding:2px 8px;border-radius:6px;background:rgba(138,180,255,.12);color:var(--blue)}
+.empty{padding:30px;text-align:center;color:var(--mu)}
+tr.detail td{background:rgba(0,0,0,.22);color:var(--mu);font-size:13px;padding:12px 16px}
+tr.r.exp{background:var(--card)}
+
+/* spotlight */
+.spot{grid-template-columns:repeat(3,1fr);margin-bottom:16px}
+.sp-c{display:flex;gap:16px;align-items:center}
+.ring{--p:0;width:74px;height:74px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--teal) calc(var(--p)*1%),rgba(255,255,255,.08) 0);transition:--p 1s;position:relative}
+.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0c121a}
+.ring b{position:relative;font-family:var(--mono);font-size:20px}
+.sp-c .t{font-weight:600;font-size:16px;line-height:1.25;color:var(--tx);word-break:break-word}
+.sp-c .m{color:var(--mu);font-size:13px;margin-top:4px}
+
+/* pipeline */
+.pipe{padding:10px;overflow-x:auto}
+.pipe svg{min-width:860px;width:100%;display:block}
+.pn{cursor:pointer}
+.pn rect.bx{fill:#0e151e;stroke:rgba(255,255,255,.14);stroke-width:1.2;transition:.25s}
+.pn:hover rect.bx,.pn:focus-visible rect.bx{stroke:var(--c);fill:color-mix(in srgb,var(--c) 10%,#0e151e)}
+.pn.sel rect.bx{stroke:var(--c);stroke-width:2;fill:color-mix(in srgb,var(--c) 16%,#0e151e);filter:drop-shadow(0 0 14px color-mix(in srgb,var(--c) 55%,transparent))}
+.pn text{fill:var(--tx);font-size:14px;font-weight:600}
+.pn text.s{fill:var(--mu);font-size:11.5px;font-weight:400;font-family:var(--mono)}
+.pn:focus-visible{outline:none}
+.pl{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1.6}
+.pl.fl{stroke-dasharray:5 7;animation:dash 1.1s linear infinite}
+.pl.dl{stroke:rgba(255,138,128,.45)}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.lane{fill:var(--dim);font-size:11px;letter-spacing:.14em;font-family:var(--mono)}
+.particle{fill:var(--teal);filter:drop-shadow(0 0 5px var(--teal))}
+.particle.bad{fill:var(--red);filter:drop-shadow(0 0 5px var(--red))}
+.particle.am{fill:var(--amb);filter:drop-shadow(0 0 5px var(--amb))}
+#pd{margin-top:14px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+#pd h3{font-size:20px;margin:6px 0 8px}
+#pd p{margin:0 0 10px;color:var(--mu)}
+#pd .dec{border-left:2px solid var(--c);padding:6px 0 6px 14px;color:var(--tx);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 8%,transparent),transparent)}
+#pd .dec small{display:block;font-family:var(--mono);color:var(--c);letter-spacing:.1em;text-transform:uppercase;font-size:11px;margin-bottom:2px}
+#pd .stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+
+/* highlights */
+.hl{grid-template-columns:repeat(3,1fr)}
+.hl .card .no{font-family:var(--mono);color:var(--teal);font-size:12px;letter-spacing:.1em}
+.hl .card h3{margin:8px 0 6px;font-size:17px}
+.hl .card p{margin:0;color:var(--mu);font-size:14px}
+.stats{display:flex;flex-wrap:wrap;gap:10px 34px;margin:26px 0 0;padding:18px 24px;border-radius:var(--r);border:1px solid var(--bd);background:var(--card)}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-size:28px;letter-spacing:-.03em}
+.stats span{font-size:12.5px;color:var(--mu)}
+
+footer{max-width:1240px;margin:0 auto;padding:30px 24px 50px;color:var(--dim);font-size:13px;border-top:1px solid var(--bd)}
+footer a{color:var(--mu)}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.skel{display:inline-block;width:5ch;height:.8em;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+@media (max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .two,#pd{grid-template-columns:1fr}
+  .spot,.hl{grid-template-columns:1fr}
+  nav.links{display:none}
+}
+@media (max-width:560px){
+  .top-in,main,footer{padding-left:16px;padding-right:16px}
+  .pill .long{display:none}
+  .kpis{grid-template-columns:1fr}
+  .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+  .particle{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="progress" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#top" aria-label="Lakewire home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0d1620" stroke="rgba(255,255,255,.14)"/><path d="M4 15c4-6 7-6 10 0s6 6 10 0 3-3 4-4" fill="none" stroke="#3ddbc0" stroke-width="2.6" stroke-linecap="round"/><path d="M4 23c4-6 7-6 10 0s6 6 10 0 3-3 4-4" fill="none" stroke="#8ab4ff" stroke-width="2.6" stroke-linecap="round" opacity=".7"/></svg>
+      Lakewire
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#overview">Overview</a><a href="#activity">Activity</a><a href="#trending">Trending</a><a href="#contested">Contested</a><a href="#pipeline">Pipeline</a><a href="#about">Engineering</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="pill" id="status" data-s="load" role="status"><span class="dot"></span><span id="status-t">Loading…</span></div>
+    <button class="icon-btn" id="refresh" title="Reload data" aria-label="Reload data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="overview">
+    <div class="eyebrow">Kafka · Spark · Delta Lake · dbt · Airflow</div>
+    <h1>Wikipedia, <span>streamed live</span><br>into a lakehouse.</h1>
+    <p class="lede">Every edit on five Wikipedia editions flows through a self-hosted streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
+    <div class="chips"><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span><span class="tag">$0 / month</span></div>
+    <div class="notice demo" id="n-demo" role="note"><span><b>Demo data.</b> No published pipeline snapshot was found, so this page is showing simulated numbers to demonstrate the dashboard. Nothing below is real Wikipedia activity.</span></div>
+    <div class="notice warn" id="n-stale" role="alert"><span id="n-stale-t"></span></div>
+
+    <div class="grid kpis">
+      <div class="card kpi reveal"><div class="l"><span class="dot" style="background:var(--teal)"></span>Latest event processed</div><div class="k num" id="k-last"><span class="skel"></span></div><svg class="sp" id="sp-last" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true"><path class="ecg" pathLength="1" d="M0 28H48L56 28L62 10L70 40L77 20L82 28H128L136 28L142 10L150 40L157 20L162 28H200" fill="none" stroke="#3ddbc0" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg><div class="foot" id="f-last"></div></div>
+      <div class="card kpi reveal"><div class="l"><span class="dot" style="background:var(--amb)"></span>Edits in the last hour</div><div class="k num" id="k-hour"><span class="skel"></span></div><svg class="sp" id="sp-hour" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true"></svg><div class="foot" id="f-hour"></div></div>
+      <div class="card kpi reveal"><div class="l"><span class="dot" style="background:var(--blue)"></span>Edits in the last 24 h</div><div class="k num" id="k-day"><span class="skel"></span></div><svg class="sp" id="sp-day" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true"></svg><div class="foot" id="f-day"></div></div>
+      <div class="card kpi reveal"><div class="l"><span class="dot" style="background:var(--vio)"></span>Edits in the lakehouse</div><div class="k num" id="k-total"><span class="skel"></span></div><svg class="sp" id="sp-total" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true"></svg><div class="foot" id="f-total"></div></div>
+    </div>
+  </section>
+
+  <section id="activity">
+    <div class="eyebrow">01 · Silver edits → bot_vs_human mart</div>
+    <h2>Who is editing?</h2>
+    <p class="lede">Hourly edit volume and bot share per wiki (all times UTC). Toggle wikis, switch the metric, and hover for exact numbers.</p>
+    <div class="grid two">
+      <div class="card reveal">
+        <div class="bar">
+          <div class="seg" role="group" aria-label="Metric"><button data-m="volume" aria-pressed="true">Volume</button><button data-m="share" aria-pressed="false">Bot share</button></div>
+          <div class="seg" role="group" aria-label="Time range"><button data-r="24" aria-pressed="false">24 h</button><button data-r="48" aria-pressed="false">48 h</button><button data-r="72" aria-pressed="true">72 h</button></div>
+        </div>
+        <div class="bar" id="chips" role="group" aria-label="Wikis"></div>
+        <div id="chart" role="img" aria-label="Hourly edits chart"></div>
+        <p class="sr" id="chart-sum"></p>
+      </div>
+      <div class="card reveal">
+        <h3>Humans vs bots</h3>
+        <p class="sub" id="donut-sub">Selected wikis, selected range</p>
+        <div class="donut"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="48" stroke="rgba(255,255,255,.07)"/><circle id="d-h" cx="60" cy="60" r="48" stroke="var(--teal)" stroke-dasharray="0 302" stroke-linecap="butt"/><circle id="d-b" cx="60" cy="60" r="48" stroke="var(--amb)" stroke-dasharray="0 302"/></svg><div class="mid"><b class="num" id="d-pct">–</b><span>bot edits</span></div></div>
+        <div class="leg"><span><i style="background:var(--teal)"></i>Human <b class="num" id="d-hv"></b></span><span><i style="background:var(--amb)"></i>Bot <b class="num" id="d-bv"></b></span></div>
+        <div class="wl" id="wl"></div>
+      </div>
+    </div>
+    <div class="card reveal" style="margin-top:16px">
+      <h3>Edit intensity by hour</h3>
+      <p class="sub">Each cell is one wiki-hour, shaded relative to that wiki's own busiest hour.</p>
+      <div class="scroll"><div class="hm" id="hm" style="min-width:560px"></div></div>
+    </div>
+  </section>
+
+  <section id="trending">
+    <div class="eyebrow">02 · Pageview dumps + edits → trending mart</div>
+    <h2>What is the world reading?</h2>
+    <p class="lede" id="trend-lede">Top English Wikipedia articles ranked by trend score: log of views, scaled by growth against the same hour the day before.</p>
+    <div class="grid spot" id="spot"></div>
+    <div class="card reveal">
+      <div class="tools">
+        <label class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Filter articles" autocomplete="off" aria-label="Filter articles"><kbd>/</kbd></label>
+        <span class="tag" id="trend-count"></span>
+      </div>
+      <div class="scroll"><table id="trend"><thead><tr>
+        <th class="rank" scope="col">#</th>
+        <th scope="col" data-k="page_title"><button>Article</button></th>
+        <th class="n" scope="col" data-k="views"><button>Views</button></th>
+        <th class="n hide-s" scope="col" data-k="growth_vs_prev_day"><button>vs prev day</button></th>
+        <th class="n hide-s" scope="col" data-k="edits_1h"><button>Edits</button></th>
+        <th class="n" scope="col" data-k="trend_score"><button>Score</button></th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="contested">
+    <div class="eyebrow">03 · Silver edits → edit_conflict_signals mart</div>
+    <h2>Where are editors clashing?</h2>
+    <p class="lede">A heuristic signal, not a verdict on any editor or article. A page is flagged when different editors alternate within ten minutes at least three times in a day. Click a row for the arithmetic.</p>
+    <div class="card reveal"><div class="scroll"><table id="conf"><thead><tr>
+      <th scope="col" data-k="wiki"><button>Wiki</button></th>
+      <th scope="col" data-k="title"><button>Page</button></th>
+      <th class="n hide-s" scope="col" data-k="event_date"><button>Date</button></th>
+      <th class="n" scope="col" data-k="edits"><button>Edits</button></th>
+      <th class="n" scope="col" data-k="distinct_editors"><button>Editors</button></th>
+      <th class="n" scope="col" data-k="rapid_alternations"><button>Reversals</button></th>
+      <th scope="col" data-k="conflict_score" style="min-width:150px"><button>Score</button></th>
+    </tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <section id="pipeline">
+    <div class="eyebrow">04 · How it works</div>
+    <h2>Explore the pipeline</h2>
+    <p class="lede">Click any stage to see what it does and the design decision behind it. Moving dots are illustrative, not live traffic.</p>
+    <div class="card pipe reveal">
+      <svg id="pipesvg" viewBox="0 0 1090 470" role="group" aria-label="Pipeline architecture diagram"></svg>
+    </div>
+    <div class="card reveal" id="pd" style="margin-top:16px"></div>
+  </section>
+
+  <section id="about">
+    <div class="eyebrow">05 · Engineering</div>
+    <h2>Built to survive production habits</h2>
+    <p class="lede">The interesting part is not the charts. It is the guarantees underneath them.</p>
+    <div class="grid hl" id="hl"></div>
+    <div class="stats reveal">
+      <div><b>2</b><span>Airflow DAGs</span></div><div><b>4</b><span>Gold marts</span></div><div><b>3</b><span>CI/CD workflows</span></div><div><b>15</b><span>unit tests</span></div><div><b>$0</b><span>monthly cost</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Source: Wikimedia EventStreams and pageview dumps. Built with Lakewire<span id="repo"></span>. <span id="gen"></span>
+</footer>
+<div class="tip" id="tip" role="presentation"></div>
+
+<script>
+'use strict';
+/* ====== config ====== */
+const REPO_URL = 'https://github.com/YOUR_USER/lakewire'; // set this to your repo
+const WIKI_NAMES = {enwiki:'English',dewiki:'German',frwiki:'French',eswiki:'Spanish',jawiki:'Japanese'};
+const WIKI_COLORS = ['#3ddbc0','#ffb547','#8ab4ff','#c792ea','#ff8fa3','#8be28b','#ffd166'];
+const STALE_PIPELINE_S = 1800;     // matches the freshness banner promise
+const STALE_SNAPSHOT_S = 3 * 3600; // publish runs every 2 h
+
+/* ====== helpers ====== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n == null || Number.isNaN(Number(n))) ? 'n/a' : Number(n).toLocaleString();
+const compact = n => new Intl.NumberFormat('en', {notation:'compact', maximumFractionDigits:1}).format(n);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); kids.forEach(k => e.append(k)); return e; };
+const hourFmt = new Intl.DateTimeFormat('en', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'UTC'});
+const pct = (n, d = 1) => (n * 100).toFixed(d) + '%';
+function ago(s) { s = Math.max(0, Math.round(s)); return s < 90 ? s + ' s' : s < 5400 ? Math.round(s / 60) + ' min' : s < 172800 ? (s / 3600).toFixed(1) + ' h' : Math.round(s / 86400) + ' d'; }
+const wikiColor = w => WIKI_COLORS[Math.max(0, S.wikis.indexOf(w)) % WIKI_COLORS.length];
+const wikiName = w => WIKI_NAMES[w] || w;
+
+/* ====== demo data (clearly labelled in the UI) ====== */
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function makeDemo() {
+  const rnd = mulberry32(20261110), now = new Date();
+  const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours());
+  const wk = [['enwiki', 9200, .19, 14], ['dewiki', 2400, .09, 13], ['frwiki', 1750, .12, 14], ['eswiki', 1150, .08, 20], ['jawiki', 1550, .15, 11]];
+  const bot = [];
+  for (let h = 71; h >= 0; h--) {
+    const ts = new Date(end - h * 3600e3);
+    for (const [wiki, base, bs, peak] of wk) {
+      const d = .62 + .38 * Math.cos((ts.getUTCHours() - peak) / 24 * 2 * Math.PI);
+      const total = Math.round(base * d * (.86 + .28 * rnd()));
+      const share = Math.min(.6, Math.max(.02, bs + .04 * Math.sin(h / 6 + base) + (rnd() - .5) * .03));
+      const b = Math.round(total * share);
+      bot.push({wiki, hour_ts: ts.toISOString(), edits_total: total, bot_edits: b, human_edits: total - b, bot_share: +(b / total).toFixed(4)});
+    }
+  }
+  const tot = {}; bot.forEach(r => tot[r.hour_ts] = (tot[r.hour_ts] || 0) + r.edits_total);
+  const hrs = Object.keys(tot).sort(), last = tot[hrs.at(-1)];
+  const titles = ['Solar_eclipse','Artemis_program','Quantum_computing','Tour_de_France','Bitcoin','Mount_Everest','Jazz','Marie_Curie','Great_Barrier_Reef',"Rubik's_Cube",'Octopus','Voyager_1','Chess','Black_hole','Mars','Photosynthesis','Silk_Road','Ada_Lovelace','Coffee','Aurora','Tardigrade','Python_(programming_language)','Apollo_11','Pizza','Sourdough'];
+  const vh = new Date(end - 5 * 3600e3).toISOString();
+  const trending = titles.map((t, i) => {
+    const views = Math.round(90000 / Math.pow(i + 1.4, .9) * (.8 + .4 * rnd())), prev = Math.round(views / (.6 + 2.2 * rnd()));
+    const g = +(views / prev).toFixed(3);
+    return {page_title: t, view_hour: vh, views, views_prev_day: prev, growth_vs_prev_day: g, edits_1h: Math.round(rnd() * rnd() * 40), trend_score: +(Math.log(1 + views) * g).toFixed(3)};
+  }).sort((a, b) => b.trend_score - a.trend_score);
+  const ct = ['Jupiter','List_of_largest_cities','Honey_bee','Roman_Empire','Cheese','Nile','Periodic_table','Lighthouse','Tea','Volcano','Origami','Glacier'];
+  const today = new Date(end).toISOString().slice(0, 10), yday = new Date(end - 864e5).toISOString().slice(0, 10);
+  const conflicts = ct.map((t, i) => {
+    const rapid = 3 + Math.floor(rnd() * 11), ed = 2 + Math.floor(rnd() * 8);
+    return {wiki: wk[Math.floor(rnd() * 5)][0], title: t.replaceAll('_', ' '), event_date: rnd() > .4 ? today : yday, edits: rapid + 2 + Math.floor(rnd() * 25), distinct_editors: ed, rapid_alternations: rapid, bytes_swing: Math.floor(rnd() * 9000) + 200, conflict_score: rapid * Math.min(ed, 5)};
+  }).sort((a, b) => b.conflict_score - a.conflict_score);
+  const iso = now.toISOString();
+  return {
+    demo: true,
+    health: {generated_at: iso, lag_seconds: 180, rows: [{latest_event_ts: new Date(now - 180e3).toISOString(), events_last_hour: last, events_last_24h: hrs.slice(-24).reduce((s, h) => s + tot[h], 0), events_total: hrs.reduce((s, h) => s + tot[h], 0) * 9, wikis: 5}]},
+    trending: {generated_at: iso, rows: trending}, bot_share: {generated_at: iso, rows: bot}, conflicts: {generated_at: iso, rows: conflicts}
+  };
+}
+
+/* ====== state ====== */
+const S = {data: null, demo: false, wikis: [], sel: new Set(), metric: 'volume', range: 72, hours: [], idx: {},
+  sort: {trend: {k: 'trend_score', dir: -1}, conf: {k: 'conflict_score', dir: -1}}, q: ''};
+
+async function load() {
+  const force = new URLSearchParams(location.search).has('demo');
+  if (!force) {
+    try {
+      const get = n => fetch(`data/${n}.json`, {cache: 'no-store'}).then(r => { if (!r.ok) throw new Error(n + ' ' + r.status); return r.json(); });
+      const [health, trending, bot_share, conflicts] = await Promise.all(['health', 'trending', 'bot_share', 'conflicts'].map(get));
+      if (!health.rows || !bot_share.rows) throw new Error('unexpected shape');
+      return {demo: false, health, trending, bot_share, conflicts};
+    } catch (e) { console.info('Live snapshot unavailable, using demo data:', e.message); }
+  }
+  return makeDemo();
+}
+
+/* ====== tooltip ====== */
+const tip = $('#tip');
+function showTip(title, rows, x, y) {
+  tip.replaceChildren(el('div', {className: 'th', textContent: title}),
+    ...rows.map(([c, l, v]) => { const r = el('div', {className: 'tr'}); const s = el('span'); if (c) { const i = el('i'); i.style.setProperty('--c', c); s.append(i); } s.append(l); r.append(s, el('b', {textContent: v})); return r; }));
+  tip.classList.add('on');
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth - w - 10, Math.max(10, x + 16)) + 'px';
+  tip.style.top = Math.min(innerHeight - h - 10, Math.max(10, y - h - 12)) + 'px';
+}
+const hideTip = () => tip.classList.remove('on');
+
+/* ====== count-up + sparkline ====== */
+function countUp(node, to, fmtFn = fmt) {
+  if (reduce || to == null || S.booted) { node.textContent = to == null ? 'n/a' : fmtFn(to); return; }
+  const t0 = performance.now(), dur = 1100;
+  const step = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 4); node.textContent = fmtFn(Math.round(to * e)); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+let gid = 0;
+function spark(svg, vals, color) {
+  if (!vals.length) { svg.replaceChildren(); return; }
+  const id = 'g' + (gid++), mx = Math.max(...vals), mn = Math.min(...vals), rng = (mx - mn) || 1;
+  const pts = vals.map((v, i) => [i / Math.max(1, vals.length - 1) * 200, 40 - (v - mn) / rng * 34]);
+  const line = pts.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join('');
+  svg.innerHTML = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${line}L200 46L0 46Z" fill="url(#${id})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+}
+
+/* ====== prepare data ====== */
+function prepare() {
+  const rows = S.data.bot_share.rows;
+  S.wikis = [...new Set(rows.map(r => r.wiki))].sort((a, b) => (a === 'enwiki' ? -1 : b === 'enwiki' ? 1 : a.localeCompare(b)));
+  S.hours = [...new Set(rows.map(r => r.hour_ts))].sort();
+  S.idx = {}; rows.forEach(r => (S.idx[r.wiki] ??= {})[r.hour_ts] = r);
+  if (!S.sel.size) S.wikis.forEach(w => S.sel.add(w));
+}
+const visHours = () => S.hours.slice(-S.range);
+const hLabel = h => hourFmt.format(new Date(h)) + ' UTC';
+
+/* ====== header / KPIs ====== */
+let snapshot = {gen: Date.now(), lag: null};
+function renderKpis() {
+  const d = S.data, h = d.health.rows[0] || {};
+  snapshot = {gen: Date.parse(d.health.generated_at) || Date.now(), lag: d.health.lag_seconds};
+  const per = {}; d.bot_share.rows.forEach(r => per[r.hour_ts] = (per[r.hour_ts] || 0) + r.edits_total);
+  const series = S.hours.map(t => per[t]);
+  countUp($('#k-hour'), h.events_last_hour); countUp($('#k-day'), h.events_last_24h); countUp($('#k-total'), h.events_total);
+  spark($('#sp-hour'), series.slice(-48), '#ffb547');
+  spark($('#sp-day'), series.map((_, i) => series.slice(Math.max(0, i - 23), i + 1).reduce((a, b) => a + b, 0)).slice(-48), '#8ab4ff');
+  let run = 0; spark($('#sp-total'), series.map(v => run += v), '#c792ea');
+  $('#f-hour').textContent = `${S.wikis.length} wikis · ${S.hours.length} h of history`;
+  $('#f-day').textContent = 'rolling 24 h window';
+  $('#f-total').textContent = 'within retention window';
+  $('#gen').textContent = 'Snapshot generated ' + new Date(d.health.generated_at).toUTCString() + '.';
+  const r = $('#repo'); r.replaceChildren();
+  if (!REPO_URL.includes('YOUR_USER')) r.append(' · ', el('a', {href: REPO_URL, target: '_blank', rel: 'noopener noreferrer', textContent: 'source on GitHub'}));
+  $('#n-demo').classList.toggle('show', !!d.demo);
+  tick();
+}
+function tick() {
+  if (!S.data) return;
+  const snapAge = (Date.now() - snapshot.gen) / 1000, lag = snapshot.lag;
+  const live = lag == null ? null : lag + snapAge;
+  $('#k-last').textContent = live == null ? 'n/a' : ago(live) + ' ago';
+  $('#f-last').textContent = lag == null ? 'no timestamp in snapshot' : `${ago(lag)} behind when snapshot was built`;
+  const pill = $('#status'), t = $('#status-t'), warn = $('#n-stale'), wt = $('#n-stale-t');
+  let state = 'live', msg = '';
+  if (S.demo) state = 'demo';
+  else if (lag == null || lag > STALE_PIPELINE_S) { state = 'stale'; msg = 'The pipeline had not processed a new event recently when this snapshot was built. The numbers below may be out of date.'; }
+  else if (snapAge > STALE_SNAPSHOT_S) { state = 'stale'; msg = `This snapshot is ${ago(snapAge)} old. The publish job may have stopped, so the numbers below may be out of date.`; }
+  pill.dataset.s = state;
+  t.replaceChildren(...(state === 'demo' ? [el('b', {textContent: 'DEMO'}), el('span', {className: 'long', textContent: ' · simulated data'})]
+    : state === 'live' ? [el('b', {textContent: 'LIVE'}), el('span', {className: 'long', textContent: ` · snapshot ${ago(snapAge)} old`})]
+    : [el('b', {textContent: 'STALE'}), el('span', {className: 'long', textContent: ' · data may be out of date'})]));
+  warn.classList.toggle('show', !!msg); wt.textContent = msg;
+}
+
+/* ====== activity chart ====== */
+function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v || 1))), f = v / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
+function renderChart(animate = true) {
+  const host = $('#chart'), hrs = visHours(), sel = S.wikis.filter(w => S.sel.has(w));
+  host.classList.toggle('noanim', !animate);
+  const W = host.clientWidth || 700, H = 330, m = {l: 48, r: 10, t: 10, b: 26}, iw = W - m.l - m.r, ih = H - m.t - m.b, n = hrs.length;
+  if (!n) { host.textContent = ''; return; }
+  const cw = iw / n, xc = i => m.l + (i + .5) * cw;
+  let body = '', ymax, ticks, yfmt, data;
+  if (S.metric === 'volume') {
+    data = hrs.map(h => { let b = 0, hu = 0; sel.forEach(w => { const r = S.idx[w]?.[h]; if (r) { b += r.bot_edits; hu += r.human_edits; } }); return {h, b, hu}; });
+    ymax = niceMax(Math.max(1, ...data.map(d => d.b + d.hu))); yfmt = v => compact(v);
+  } else {
+    data = hrs.map(h => ({h, v: Object.fromEntries(sel.map(w => [w, S.idx[w]?.[h]?.bot_share ?? null]))}));
+    const mx = Math.max(.05, ...data.flatMap(d => Object.values(d.v).filter(v => v != null)));
+    ymax = Math.min(1, Math.ceil((mx + .02) * 10) / 10); yfmt = v => Math.round(v * 100) + '%';
+  }
+  ticks = [0, .25, .5, .75, 1].map(f => f * ymax);
+  const y = v => m.t + ih - v / ymax * ih;
+  ticks.forEach(t => { body += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${yfmt(t)}</text>`; });
+  const every = Math.ceil(n / Math.max(3, Math.floor(iw / 90)));
+  hrs.forEach((h, i) => { if ((n - 1 - i) % every === 0) { const d = new Date(h), hh = String(d.getUTCHours()).padStart(2, '0'); body += `<text x="${xc(i)}" y="${H - 6}" text-anchor="middle">${d.getUTCHours() === 0 ? d.toLocaleDateString('en', {month: 'short', day: 'numeric', timeZone: 'UTC'}) : hh + ':00'}</text>`; } });
+  if (S.metric === 'volume') {
+    const bw = Math.max(2, cw * .72);
+    data.forEach((d, i) => {
+      const x = xc(i) - bw / 2, hh = d.hu / ymax * ih, bh = d.b / ymax * ih;
+      body += `<rect class="bar-r" style="--i:${i}" x="${x}" y="${m.t + ih - hh}" width="${bw}" height="${hh}" rx="${Math.min(2, bw / 3)}" fill="#3ddbc0"/><rect class="bar-r" style="--i:${i}" x="${x}" y="${m.t + ih - hh - bh}" width="${bw}" height="${bh}" rx="${Math.min(2, bw / 3)}" fill="#ffb547"/>`;
+    });
+  } else {
+    sel.forEach(w => {
+      let dstr = '', pen = false;
+      data.forEach((d, i) => { const v = d.v[w]; if (v == null) { pen = false; return; } dstr += (pen ? 'L' : 'M') + xc(i).toFixed(1) + ' ' + y(v).toFixed(1); pen = true; });
+      if (dstr) body += `<path class="line" pathLength="1" d="${dstr}" stroke="${wikiColor(w)}"/>`;
+    });
+  }
+  body += `<g id="cross" style="display:none"><line id="cl" y1="${m.t}" y2="${m.t + ih}" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 4"/></g><rect id="ov" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>`;
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${body}</svg>`;
+  const ov = $('#ov', host), cross = $('#cross', host), cl = $('#cl', host);
+  ov.addEventListener('pointermove', e => {
+    const r = ov.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - r.left) / r.width * n)));
+    cross.style.display = ''; cl.setAttribute('x1', xc(i)); cl.setAttribute('x2', xc(i));
+    const d = data[i];
+    if (S.metric === 'volume') showTip(hLabel(d.h), [['#3ddbc0', 'Human', fmt(d.hu)], ['#ffb547', 'Bot', fmt(d.b)], [null, 'Bot share', d.b + d.hu ? pct(d.b / (d.b + d.hu)) : 'n/a']], e.clientX, e.clientY);
+    else showTip(hLabel(d.h), sel.map(w => [wikiColor(w), wikiName(w), d.v[w] == null ? 'n/a' : pct(d.v[w])]), e.clientX, e.clientY);
+  });
+  ov.addEventListener('pointerleave', () => { cross.style.display = 'none'; hideTip(); });
+  const tot = sel.reduce((s, w) => s + hrs.reduce((a, h) => a + (S.idx[w]?.[h]?.edits_total || 0), 0), 0);
+  $('#chart-sum').textContent = `${S.metric === 'volume' ? 'Edit volume' : 'Bot share'} for ${sel.map(wikiName).join(', ') || 'no wikis'} over the last ${n} hours; ${fmt(tot)} edits in total.`;
+  host.setAttribute('aria-label', $('#chart-sum').textContent);
+}
+
+function renderBreakdown() {
+  const hrs = new Set(visHours());
+  const agg = S.wikis.map(w => { let t = 0, b = 0; for (const h of hrs) { const r = S.idx[w]?.[h]; if (r) { t += r.edits_total; b += r.bot_edits; } } return {w, t, b}; });
+  const sel = agg.filter(a => S.sel.has(a.w)), T = sel.reduce((s, a) => s + a.t, 0), B = sel.reduce((s, a) => s + a.b, 0), C = 2 * Math.PI * 48;
+  const bs = T ? B / T : 0;
+  $('#d-b').setAttribute('stroke-dasharray', `${C * bs} ${C}`);
+  $('#d-h').setAttribute('stroke-dasharray', `${C * (1 - bs)} ${C}`);
+  $('#d-h').setAttribute('stroke-dashoffset', -C * bs);
+  $('#d-pct').textContent = T ? pct(bs, 0) : '–';
+  $('#d-hv').textContent = compact(T - B); $('#d-bv').textContent = compact(B);
+  $('#donut-sub').textContent = `${sel.length} wiki${sel.length === 1 ? '' : 's'} · last ${hrs.size} h`;
+  const mx = Math.max(1, ...agg.map(a => a.t)), wl = $('#wl'); wl.replaceChildren();
+  agg.forEach(a => {
+    const b = el('button', {className: 'wrow', type: 'button'}); b.style.setProperty('--c', wikiColor(a.w)); b.setAttribute('aria-pressed', S.sel.has(a.w));
+    const nm = el('span', {className: 'nm'}, el('i'), wikiName(a.w)), tr = el('span', {className: 'tr'}, el('b')); tr.firstChild.style.width = (a.t / mx * 100) + '%';
+    b.append(nm, tr, el('span', {className: 'v num', textContent: compact(a.t) + ' · ' + (a.t ? pct(a.b / a.t, 0) : '–')}));
+    b.title = `${wikiName(a.w)}: ${fmt(a.t)} edits, ${a.t ? pct(a.b / a.t) : 'n/a'} bots. Click to toggle.`;
+    b.addEventListener('click', () => toggleWiki(a.w)); wl.append(b);
+  });
+}
+function renderChips() {
+  const c = $('#chips'); c.replaceChildren();
+  S.wikis.forEach(w => { const b = el('button', {className: 'wchip', type: 'button'}, el('i'), wikiName(w)); b.style.setProperty('--c', wikiColor(w)); b.setAttribute('aria-pressed', S.sel.has(w)); b.addEventListener('click', () => toggleWiki(w)); c.append(b); });
+}
+function toggleWiki(w) { if (S.sel.has(w)) { if (S.sel.size > 1) S.sel.delete(w); } else S.sel.add(w); renderChips(); renderChart(); renderBreakdown(); renderHeat(); }
+
+function renderHeat() {
+  const hrs = visHours(), rows = S.wikis.filter(w => S.sel.has(w)), hm = $('#hm');
+  hm.style.gridTemplateColumns = `84px repeat(${hrs.length}, minmax(6px,1fr))`; hm.replaceChildren();
+  rows.forEach(w => {
+    const mx = Math.max(1, ...hrs.map(h => S.idx[w]?.[h]?.edits_total || 0));
+    hm.append(el('div', {className: 'rl', textContent: wikiName(w)}));
+    hrs.forEach(h => {
+      const r = S.idx[w]?.[h], v = r?.edits_total || 0, c = el('div', {className: 'c'});
+      if (r) { c.style.background = `color-mix(in srgb, ${wikiColor(w)} ${Math.round(8 + 92 * Math.pow(v / mx, .85))}%, transparent)`; }
+      c.addEventListener('pointermove', e => showTip(`${wikiName(w)} · ${hLabel(h)}`, [[wikiColor(w), 'Edits', fmt(v)], [null, 'Bot share', r ? pct(r.bot_share) : 'n/a']], e.clientX, e.clientY));
+      c.addEventListener('pointerleave', hideTip); hm.append(c);
+    });
+  });
+}
+
+/* ====== tables ====== */
+const wikiHost = w => w.replace(/wiki$/, '') + '.wikipedia.org';
+function articleLink(host, title, cls) {
+  return el('a', {href: `https://${host}/wiki/${encodeURIComponent(title.replaceAll(' ', '_'))}`, target: '_blank', rel: 'noopener noreferrer', textContent: title.replaceAll('_', ' '), className: cls || ''});
+}
+function setSort(table, st, render) {
+  $$('th[data-k]', table).forEach(th => {
+    th.setAttribute('aria-sort', th.dataset.k === st.k ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
+    $('button', th).onclick = () => { st.dir = st.k === th.dataset.k ? -st.dir : (th.dataset.k === 'page_title' || th.dataset.k === 'title' || th.dataset.k === 'wiki' ? 1 : -1); st.k = th.dataset.k; render(); };
+  });
+}
+const cmp = (k, dir) => (a, b) => { const x = a[k], y = b[k]; if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * dir; };
+
+function renderTrending() {
+  const all = S.data.trending.rows, st = S.sort.trend, q = S.q.trim().toLowerCase();
+  const rows = all.filter(r => !q || r.page_title.replaceAll('_', ' ').toLowerCase().includes(q)).sort(cmp(st.k, st.dir));
+  const mxv = Math.max(1, ...all.map(r => r.views)), mxs = Math.max(1, ...all.map(r => r.trend_score));
+  const vh = all[0]?.view_hour; if (vh) $('#trend-lede').textContent = `English Wikipedia articles for the pageview hour starting ${hLabel(vh)}, ranked by trend score: log of views, scaled by growth against the same hour the day before. Pageview dumps arrive with a delay, so this lags the live edit counts above.`;
+  const sp = $('#spot'); sp.replaceChildren();
+  [...all].sort((a, b) => b.trend_score - a.trend_score).slice(0, 3).forEach((r, i) => {
+    const ring = el('div', {className: 'ring'}, el('b', {textContent: i + 1})); ring.style.setProperty('--p', Math.round(r.trend_score / mxs * 100));
+    const c = el('div', {className: 'card sp-c reveal in'}, ring, el('div', {}, articleLink('en.wikipedia.org', r.page_title, 't'), el('div', {className: 'm num', textContent: `${fmt(r.views)} views · ${r.growth_vs_prev_day == null ? 'n/a' : r.growth_vs_prev_day + '× vs yesterday'}`})));
+    sp.append(c);
+  });
+  const tb = $('#trend tbody'); tb.replaceChildren();
+  $('#trend-count').textContent = `${rows.length} of ${all.length} articles`;
+  if (!rows.length) { const td = el('td', {colSpan: 6, className: 'empty', textContent: 'No articles match your filter.'}); tb.append(el('tr', {}, td)); }
+  rows.forEach((r, i) => {
+    const g = r.growth_vs_prev_day, cls = g == null ? 'b-na' : g >= 1.5 ? 'b-hot' : g >= 1 ? 'b-up' : 'b-dn';
+    const m = el('div', {className: 'meter'}, el('b')); m.firstChild.style.width = (r.views / mxv * 100) + '%';
+    const title = el('td', {className: 'title'}, articleLink('en.wikipedia.org', r.page_title), m);
+    const tr = el('tr', {className: 'r'}, el('td', {className: 'rank', textContent: String(i + 1).padStart(2, '0')}), title,
+      el('td', {className: 'n', textContent: fmt(r.views)}),
+      el('td', {className: 'n hide-s'}, el('span', {className: 'badge ' + cls, textContent: g == null ? 'n/a' : (g >= 1.5 ? '▲ ' : g < 1 ? '▼ ' : '') + g + '×'})),
+      el('td', {className: 'n hide-s', textContent: fmt(r.edits_1h)}), el('td', {className: 'n', textContent: r.trend_score.toFixed(1)}));
+    tr.style.setProperty('--i', Math.min(i, 20)); tr.querySelector('.meter').style.setProperty('--i', Math.min(i, 20)); tb.append(tr);
+  });
+  setSort($('#trend'), st, renderTrending);
+}
+
+function renderConflicts() {
+  const all = S.data.conflicts.rows, st = S.sort.conf, rows = [...all].sort(cmp(st.k, st.dir)), mx = Math.max(1, ...all.map(r => r.conflict_score));
+  const tb = $('#conf tbody'); tb.replaceChildren();
+  if (!rows.length) tb.append(el('tr', {}, el('td', {colSpan: 7, className: 'empty', textContent: 'No pages are flagged right now. Quiet is good.'})));
+  rows.forEach((r, i) => {
+    const m = el('div', {className: 'meter am'}, el('b')); m.firstChild.style.width = (r.conflict_score / mx * 100) + '%'; m.firstChild.style.setProperty('--i', Math.min(i, 20));
+    const tr = el('tr', {className: 'r', tabIndex: 0}, el('td', {}, el('span', {className: 'wb', textContent: r.wiki})), el('td', {className: 'title'}, articleLink(wikiHost(r.wiki), r.title)),
+      el('td', {className: 'n hide-s', textContent: r.event_date}), el('td', {className: 'n', textContent: fmt(r.edits)}), el('td', {className: 'n', textContent: fmt(r.distinct_editors)}),
+      el('td', {className: 'n', textContent: fmt(r.rapid_alternations)}), el('td', {}, el('span', {className: 'num', textContent: fmt(r.conflict_score)}), m));
+    tr.style.setProperty('--i', Math.min(i, 20));
+    const toggle = e => {
+      if (e.target.closest('a')) return;
+      const nx = tr.nextElementSibling;
+      if (nx?.classList.contains('detail')) { nx.remove(); tr.classList.remove('exp'); return; }
+      const d = el('tr', {className: 'detail'}, el('td', {colSpan: 7, textContent: `${r.rapid_alternations} rapid reversals × ${Math.min(r.distinct_editors, 5)} (editors, capped at 5) = score ${r.conflict_score}. Net bytes moved by these edits: ${fmt(r.bytes_swing)}. This flags a lot of back-and-forth, not who is right.`}));
+      tr.after(d); tr.classList.add('exp');
+    };
+    tr.addEventListener('click', toggle); tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
+    tb.append(tr);
+  });
+  setSort($('#conf'), st, renderConflicts);
+}
+
+/* ====== pipeline explorer ====== */
+const N = {
+  src:   {x: 20,  y: 60,  t: 'EventStreams', s: 'Wikimedia SSE', c: '#8ab4ff', layer: 'Source', h: 'Wikimedia EventStreams',
+    p: 'A public Server-Sent Events feed of every change on every wiki. Lakewire keeps only edits and page creations on the configured wikis and sends a descriptive User-Agent, as Wikimedia asks.', d: 'Be a polite client: identify yourself, filter early, never hammer the source.', st: ['SSE', 'HTTPS']},
+  prod:  {x: 200, y: 60,  t: 'Producer', s: 'Python · contract', c: '#3ddbc0', layer: 'Ingest', h: 'Producer with a data contract',
+    p: 'A hand-written SSE parser reconnects with exponential backoff (1 to 60 s) and resumes from the Last-Event-ID. Every event is validated against a JSON Schema before it is allowed anywhere near Kafka. The Kafka producer is idempotent and compresses with lz4.', d: 'A bad event must never block the stream. It goes to the dead-letter topic instead.', st: ['Python', 'jsonschema', 'confluent-kafka', 'Prometheus']},
+  dlq:   {x: 200, y: 200, t: 'Dead-letter topic', s: 'wiki.edits.dlq', c: '#ff8a80', layer: 'Ingest', h: 'Dead-letter queue',
+    p: 'Invalid JSON and contract violations are kept with their error list and original payload for seven days so they can be inspected and replayed. Additive fields pass the contract; type changes and missing required fields do not.', d: 'Schema drift becomes a visible, countable event instead of a silent corruption.', st: ['Kafka topic', '7 d retention']},
+  kafka: {x: 380, y: 60,  t: 'Kafka', s: 'KRaft · 3 partitions', c: '#ffb547', layer: 'Transport', h: 'Kafka (single-broker KRaft)',
+    p: 'Topic wiki.edits.raw has three partitions, is keyed by wiki and keeps 48 hours, enough to survive a long consumer outage and replay.', d: 'Kafka is at-least-once, so everything downstream is built to tolerate duplicates.', st: ['Kafka 3.8', 'KRaft']},
+  spark: {x: 560, y: 60,  t: 'Spark Streaming', s: 'Structured · Delta', c: '#c792ea', layer: 'Process', h: 'Spark Structured Streaming',
+    p: 'Reads Kafka into Bronze, then Bronze into Silver. A watermark plus dropDuplicatesWithinWatermark bounds state, and an insert-only MERGE on event_id makes any redelivery harmless. Table compaction, retention and VACUUM run in the same JVM.', d: 'One writer per Delta table. S3-compatible storage has no atomic put-if-absent, so maintenance lives inside the streaming driver.', st: ['Spark 3.5', 'Delta 3.2', 'foreachBatch MERGE']},
+  bronze:{x: 740, y: 60,  t: 'Bronze', s: 'raw · 14 days', c: '#b08968', layer: 'Storage', h: 'Bronze: raw and replayable',
+    p: 'Append-only Delta. The JSON payload is stored exactly as received next to its Kafka topic, partition and offset, partitioned by ingest date.', d: 'Keep the raw truth so Silver can always be rebuilt.', st: ['Delta', 'MinIO (S3)']},
+  silver:{x: 920, y: 60,  t: 'Silver', s: 'typed · 120 days', c: '#cfd8e3', layer: 'Storage', h: 'Silver: typed and deduplicated',
+    p: 'Parsed columns, partitioned by event date. CI replays the same fixture events twice and asserts that Silver does not change while Bronze and the DLQ double.', d: 'Effectively-once is proven by a test, not claimed in a README.', st: ['Delta', 'MERGE on event_id']},
+  dumps: {x: 20,  y: 320, t: 'Pageview dumps', s: 'hourly .gz files', c: '#8ab4ff', layer: 'Source', h: 'Wikimedia pageview dumps',
+    p: 'One compressed file per hour of aggregate pageviews, published with a delay of a few hours.', d: 'The dashboard says so: trending data lags the live edit stream.', st: ['HTTPS', 'gzip']},
+  air:   {x: 200, y: 320, t: 'Airflow + PySpark', s: 'daily DAG', c: '#3ddbc0', layer: 'Batch', h: 'Airflow daily pageview backfill',
+    p: 'Waits for the dump (retrying every 15 minutes for up to 8 hours), downloads with retries, checks md5 and gzip integrity, keeps the top N pages for the configured domains and overwrites exactly that day.', d: 'Idempotent per-day partition overwrite: rerunning a day gives the same rows.', st: ['Airflow 2.10', 'PySpark', 'replaceWhere']},
+  pvs:   {x: 380, y: 320, t: 'Silver pageviews', s: 'by view_date', c: '#cfd8e3', layer: 'Storage', h: 'Silver pageviews',
+    p: 'Delta table partitioned by view date, with the same retention and compaction treatment as the edits tables.', d: 'Airflow only ever writes this table, which keeps the single-writer rule intact.', st: ['Delta']},
+  dbt:   {x: 560, y: 320, t: 'dbt + DuckDB', s: 'hourly via Airflow', c: '#ff8fa3', layer: 'Transform', h: 'dbt on DuckDB',
+    p: 'DuckDB reads the Delta tables straight from MinIO with delta_scan. Staging models feed four incremental marts. CI builds everything on parquet fixtures, twice, to exercise the incremental path and the data tests.', d: 'Marts are small enough to keep forever and cheap enough to rebuild hourly.', st: ['dbt-duckdb', 'delta_scan', 'incremental']},
+  gold:  {x: 740, y: 320, t: 'Gold marts', s: 'JSON snapshots', c: '#ffd166', layer: 'Serve', h: 'Gold marts and JSON export',
+    p: 'Pipeline health, bot vs human, trending articles and edit-conflict signals. A small export writes JSON atomically (temp file, then rename) so a reader never sees half a file.', d: 'The public site never touches the lake. It only reads four tiny files.', st: ['DuckDB', 'JSON']},
+  pages: {x: 920, y: 320, t: 'This dashboard', s: 'GitHub Pages', c: '#3ddbc0', layer: 'Serve', h: 'Publish to GitHub Pages',
+    p: 'A scheduled workflow pulls the snapshot over SSH, deploys it, then fails loudly if the newest event is more than 45 minutes old, so GitHub emails the owner when the pipeline has stopped.', d: 'Honest freshness: show the staleness banner and make the alarm noisy.', st: ['GitHub Actions', 'Pages']}
+};
+const EDGES = [
+  ['src', 'prod', 'a'], ['prod', 'kafka', 'a'], ['kafka', 'spark', 'a'], ['spark', 'bronze', 'a'], ['bronze', 'silver', 'a'],
+  ['dumps', 'air', 'b'], ['air', 'pvs', 'b'], ['pvs', 'dbt', 'b'], ['dbt', 'gold', 'b'], ['gold', 'pages', 'b']
+];
+function renderPipeline() {
+  const svg = $('#pipesvg'), W = 150, H = 76; let out = '';
+  out += '<text class="lane" x="20" y="30">STREAMING · ALWAYS ON</text><text class="lane" x="20" y="290">BATCH + SERVING · SCHEDULED</text>';
+  let paths = '', dots = '';
+  const P = {};
+  const add = (id, d, cls = 'fl', col = '') => { P[id] = d; paths += `<path id="p-${id}" class="pl ${cls}" d="${d}"/>`; return id; };
+  EDGES.forEach(([a, b], i) => { const A = N[a], B = N[b]; add(`${a}-${b}`, `M${A.x + W} ${A.y + H / 2} L${B.x} ${B.y + H / 2}`); });
+  add('prod-dlq', `M${N.prod.x + W / 2} ${N.prod.y + H} L${N.dlq.x + W / 2} ${N.dlq.y}`, 'fl dl');
+  add('silver-dbt', `M${N.silver.x + W / 2} ${N.silver.y + H} C${N.silver.x + W / 2} 230 ${N.dbt.x + W / 2} 230 ${N.dbt.x + W / 2} ${N.dbt.y}`);
+  const flows = [['src-prod', 'particle'], ['prod-kafka', 'particle'], ['kafka-spark', 'particle'], ['spark-bronze', 'particle'], ['bronze-silver', 'particle'], ['prod-dlq', 'particle bad'], ['silver-dbt', 'particle'], ['dumps-air', 'particle am'], ['air-pvs', 'particle am'], ['pvs-dbt', 'particle am'], ['dbt-gold', 'particle'], ['gold-pages', 'particle']];
+  flows.forEach(([id, cls], i) => { [0, 1].forEach(k => { dots += `<circle class="${cls}" r="3"><animateMotion dur="${2.4 + (i % 3) * .4}s" begin="${(i * .35 + k * 1.2).toFixed(2)}s" repeatCount="indefinite"><mpath href="#p-${id}"/></animateMotion></circle>`; }); });
+  let nodes = '';
+  Object.entries(N).forEach(([k, n]) => {
+    nodes += `<g class="pn" data-k="${k}" tabindex="0" role="button" aria-label="${esc(n.h)}" style="--c:${n.c}"><rect class="bx" x="${n.x}" y="${n.y}" width="${W}" height="${H}" rx="14"/><circle cx="${n.x + 16}" cy="${n.y + 20}" r="4" fill="${n.c}"/><text x="${n.x + 28}" y="${n.y + 25}">${esc(n.t)}</text><text class="s" x="${n.x + 16}" y="${n.y + 52}">${esc(n.s)}</text></g>`;
+  });
+  const ops = `<g class="pn" data-k="ops" tabindex="0" role="button" aria-label="Observability and delivery" style="--c:#8be28b"><rect class="bx" x="20" y="425" width="1050" height="38" rx="12"/><circle cx="38" cy="444" r="4" fill="#8be28b"/><text x="52" y="449">Observability &amp; delivery</text><text class="s" x="270" y="449">Prometheus · Grafana · Slack alerts · GitHub Actions CI/CD · health checks</text></g>`;
+  svg.innerHTML = out + paths + dots + nodes + ops;
+  N.ops = {c: '#8be28b', layer: 'Operations', h: 'Observability and delivery', p: 'The producer and the streaming driver export Prometheus metrics (last event age, input rate, batch time). Grafana is provisioned from the repo, Airflow failures post to Slack, and a health script runs after every deploy. CI lints, runs unit tests, builds dbt twice, and runs a Kafka, MinIO and Spark end-to-end job; CD deploys to the VM only after CI passes on main.', d: 'If you cannot see it fail, you cannot call it production.', st: ['Prometheus', 'Grafana', 'GitHub Actions', 'Docker Compose']};
+  const select = k => {
+    $$('.pn', svg).forEach(g => g.classList.toggle('sel', g.dataset.k === k));
+    const n = N[k], box = $('#pd'); box.style.setProperty('--c', n.c);
+    box.replaceChildren(
+      el('div', {}, el('div', {className: 'eyebrow', textContent: n.layer, style: `color:${n.c}`}), el('h3', {textContent: n.h}), el('p', {textContent: n.p}),
+        (() => { const s = el('div', {className: 'stack'}); n.st.forEach(t => s.append(el('span', {className: 'tag', textContent: t}))); return s; })()),
+      el('div', {className: 'dec'}, el('small', {textContent: 'Design decision'}), n.d));
+  };
+  $$('.pn', svg).forEach(g => { g.addEventListener('click', () => select(g.dataset.k)); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(g.dataset.k); } }); });
+  select('spark');
+}
+
+const HL = [
+  ['Effectively-once', 'Kafka delivers at least once. A watermark dedupe and an insert-only MERGE on event_id make redelivery harmless, and CI proves it by replaying the same events twice.'],
+  ['Data contract at the edge', 'Events are validated against a JSON Schema before Kafka. Violations land in a dead-letter topic with their errors instead of breaking the stream.'],
+  ['One writer per table', 'Delta on S3-compatible storage lacks atomic put-if-absent, so compaction, retention and VACUUM run inside the streaming driver rather than a second process.'],
+  ['Idempotent backfills', 'Pageviews are verified (md5 and gzip), filtered, and written with a per-day partition overwrite. Re-running a day yields the same rows.'],
+  ['Honest freshness', 'The dashboard shows a banner when data is stale and the publish job fails loudly at 45 minutes, so silence never looks like success.'],
+  ['Tested like production', 'Lint, unit tests, dbt built twice, and a real Kafka, MinIO and Spark end-to-end job on every push, then automatic deploy with a post-deploy health check.']
+];
+function renderHighlights() {
+  const g = $('#hl'); g.replaceChildren();
+  HL.forEach(([t, p], i) => g.append(el('div', {className: 'card reveal'}, el('div', {className: 'no', textContent: String(i + 1).padStart(2, '0')}), el('h3', {textContent: t}), el('p', {textContent: p}))));
+}
+
+/* ====== wiring ====== */
+function reveal() {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: .08});
+  $$('.reveal:not(.in)').forEach((n, i) => { n.style.transitionDelay = Math.min(i % 4, 3) * 70 + 'ms'; io.observe(n); });
+}
+function wire() {
+  $$('[data-m]').forEach(b => b.addEventListener('click', () => { S.metric = b.dataset.m; $$('[data-m]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderChart(); }));
+  $$('[data-r]').forEach(b => b.addEventListener('click', () => { S.range = +b.dataset.r; $$('[data-r]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderChart(); renderBreakdown(); renderHeat(); }));
+  $('#q').addEventListener('input', e => { S.q = e.target.value; renderTrending(); });
+  addEventListener('keydown', e => { if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $('#q').focus(); $('#trending').scrollIntoView({behavior: reduce ? 'auto' : 'smooth'}); } });
+  document.addEventListener('pointermove', e => { const c = e.target.closest?.('.card'); if (c) { const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); } });
+  let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => S.data && renderChart(false), 120); }).observe($('#chart'));
+  addEventListener('scroll', () => { const h = document.documentElement; $('#progress').style.transform = `scaleX(${h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)})`; }, {passive: true});
+  const links = $$('nav.links a'), secs = links.map(a => $(a.getAttribute('href')));
+  const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin: '-40% 0px -55% 0px'});
+  secs.forEach(s => s && so.observe(s));
+  $('#refresh').addEventListener('click', async e => { const b = e.currentTarget; b.classList.add('spin'); await boot(); setTimeout(() => b.classList.remove('spin'), 600); });
+  setInterval(tick, 1000);
+  setInterval(() => { if (!S.demo) boot(); }, 5 * 60 * 1000);
+}
+async function boot() {
+  try {
+    S.data = await load(); S.demo = S.data.demo;
+    prepare(); renderKpis(); renderChips(); renderChart(); renderBreakdown(); renderHeat(); renderTrending(); renderConflicts(); reveal(); S.booted = true;
+  } catch (err) {
+    console.error(err);
+    const p = $('#status'); p.dataset.s = 'stale'; $('#status-t').textContent = 'Could not load data';
+    $('#n-stale-t').textContent = 'Could not load data: ' + err.message; $('#n-stale').classList.add('show');
+  }
+}
+renderPipeline(); renderHighlights(); wire(); boot();
+</script>
+</body>
+</html>

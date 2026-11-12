@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lakewire.dev/contracts/recentchange.v1.json",
+  "title": "Wikimedia recentchange event (fields Lakewire depends on)",
+  "type": "object",
+  "required": ["meta", "type", "wiki", "title", "user"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["id", "dt"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "dt": {"type": "string", "minLength": 10}
+      }
+    },
+    "type": {"type": "string"},
+    "wiki": {"type": "string", "minLength": 1},
+    "title": {"type": "string"},
+    "user": {"type": "string"},
+    "namespace": {"type": "integer"},
+    "bot": {"type": "boolean"},
+    "minor": {"type": "boolean"},
+    "length": {
+      "type": "object",
+      "properties": {"old": {"type": ["integer", "null"]}, "new": {"type": ["integer", "null"]}}
+    },
+    "revision": {
+      "type": "object",
+      "properties": {"old": {"type": ["integer", "null"]}, "new": {"type": ["integer", "null"]}}
+    }
+  },
+  "additionalProperties": true
+}

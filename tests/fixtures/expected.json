@@ -1,0 +1,7 @@
+{
+ "producer_ok": 15,
+ "producer_skip": 3,
+ "producer_dlq": 2,
+ "silver_distinct": 12,
+ "dlq_messages": 2
+}
