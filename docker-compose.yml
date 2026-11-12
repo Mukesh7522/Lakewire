@@ -2,10 +2,10 @@ name: lakewire
 
 x-env: &env
   KAFKA_BOOTSTRAP: kafka:9092
-  S3_ENDPOINT: http://minio:9000
-  S3_HOSTPORT: minio:9000
-  MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
-  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+  S3_ENDPOINT: http://s3:9000
+  S3_HOSTPORT: s3:9000
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:-lakewire}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
   LAKE_BUCKET: ${LAKE_BUCKET:-lake}
   USER_AGENT: ${USER_AGENT:-Lakewire/1.0 (set USER_AGENT in .env)}
   WIKIS: ${WIKIS:-enwiki,dewiki,frwiki,eswiki,jawiki}
@@ -56,29 +56,39 @@ services:
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic wiki.edits.raw --partitions 3 --replication-factor 1 --config retention.ms=172800000
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic wiki.edits.dlq --partitions 1 --replication-factor 1 --config retention.ms=604800000
 
-  minio:
-    image: minio/minio:latest
+  # S3-compatible object store (SeaweedFS, Apache-2.0). MinIO's community images were withdrawn in 2025.
+  # Master, volume server, filer and S3 gateway run in one process; the S3 API listens on :9000.
+  s3:
+    image: chrislusf/seaweedfs:4.53
     restart: unless-stopped
     mem_limit: 1g
-    command: server /data --console-address ":9001"
+    command: ["server", "-dir=/data", "-ip.bind=0.0.0.0", "-s3", "-s3.port=9000", "-master.volumeSizeLimitMB=1024", "-volume.max=100"]
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+      # The S3 gateway creates its admin identity from these standard variables.
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-lakewire}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
     volumes:
-      - minio-data:/data
+      - s3-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9333/cluster/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
-  minio-init:
-    image: minio/mc:latest
-    depends_on: [minio]
+  s3-init:
+    image: amazon/aws-cli:2.40.1
+    depends_on:
+      s3: {condition: service_healthy}
     restart: "no"
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do sleep 2; done
-        mc mb --ignore-existing local/$${LAKE_BUCKET}
+        until aws --endpoint-url http://s3:9000 s3api head-bucket --bucket "$$LAKE_BUCKET" 2>/dev/null || aws --endpoint-url http://s3:9000 s3 mb "s3://$$LAKE_BUCKET"; do sleep 2; done
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-lakewire}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-lakewire}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY in .env}
+      AWS_DEFAULT_REGION: us-east-1
       LAKE_BUCKET: ${LAKE_BUCKET:-lake}
 
   producer:
@@ -96,7 +106,7 @@ services:
     mem_limit: 4g
     depends_on:
       kafka-init: {condition: service_completed_successfully}
-      minio-init: {condition: service_completed_successfully}
+      s3-init: {condition: service_completed_successfully}
     environment:
       <<: *env
       SPARK_DRIVER_MEMORY: 2g
@@ -108,7 +118,7 @@ services:
     mem_limit: 6g
     command: standalone
     depends_on:
-      minio-init: {condition: service_completed_successfully}
+      s3-init: {condition: service_completed_successfully}
     environment:
       <<: *env
       SPARK_DRIVER_MEMORY: 3g
@@ -118,7 +128,7 @@ services:
     ports: ["127.0.0.1:8080:8080"]
 
   kafka-exporter:
-    image: danielqsj/kafka-exporter:latest
+    image: danielqsj/kafka-exporter:v1.8.0
     restart: unless-stopped
     mem_limit: 128m
     command: ["--kafka.server=kafka:9092"]
@@ -126,7 +136,7 @@ services:
       kafka: {condition: service_healthy}
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.55.1
     restart: unless-stopped
     mem_limit: 512m
     volumes:
@@ -136,11 +146,11 @@ services:
     ports: ["127.0.0.1:9090:9090"]
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     restart: unless-stopped
     mem_limit: 512m
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me-too}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -150,7 +160,7 @@ services:
 
 volumes:
   kafka-data:
-  minio-data:
+  s3-data:
   airflow-home:
   appdata:
   prometheus-data:

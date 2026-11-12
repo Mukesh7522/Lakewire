@@ -50,11 +50,15 @@ jobs:
           dbt build --target ci --profiles-dir .   # second run exercises the incremental branch
 
   end-to-end:
-    # Real Kafka + MinIO + Spark + Delta + DuckDB, in the same containers production uses.
+    # Real Kafka + SeaweedFS (S3) + Spark + Delta + DuckDB, in the same containers production uses.
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
       COMPOSE: docker compose -f docker-compose.yml -f docker-compose.ci.yml
+      # Throwaway credentials for the ephemeral CI stack only (compose requires them to be set).
+      S3_ACCESS_KEY: lakewire
+      S3_SECRET_KEY: ci-only-not-a-secret
+      GRAFANA_ADMIN_PASSWORD: ci-only-not-a-secret
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -63,11 +67,11 @@ jobs:
       - run: pip install dbt-duckdb==1.11.1 duckdb==2.0.0
       - name: Validate compose file
         run: $COMPOSE config -q
-      - name: Start Kafka and MinIO
+      - name: Start Kafka and the S3 store
         run: |
-          $COMPOSE up -d --wait kafka minio
+          $COMPOSE up -d --wait kafka s3
           $COMPOSE run --rm kafka-init
-          $COMPOSE run --rm minio-init
+          $COMPOSE run --rm s3-init
       - name: Build images
         run: $COMPOSE build producer spark-stream
       - name: Replay fixture events through the producer (run 1)
@@ -84,12 +88,10 @@ jobs:
         run: $COMPOSE run --rm --no-deps spark-stream python scripts/smoke_check.py tests/fixtures/expected.json 2
       - name: Seed pageviews Delta table
         run: $COMPOSE run --rm --no-deps spark-stream python scripts/seed_pageviews.py /app/tests/fixtures/pageviews.parquet
-      - name: dbt build against Delta on MinIO (production target)
+      - name: dbt build against Delta on the S3 store (production target)
         working-directory: dbt
         env:
           S3_HOSTPORT: localhost:9000
-          MINIO_ROOT_USER: lakewire
-          MINIO_ROOT_PASSWORD: change-me-please
           LAKE_BUCKET: lake
           DUCKDB_PATH: /tmp/smoke.duckdb
         run: dbt build --target prod --profiles-dir .

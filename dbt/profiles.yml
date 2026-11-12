@@ -12,10 +12,10 @@ lakewire:
       secrets:
         - type: s3
           provider: config
-          key_id: "{{ env_var('MINIO_ROOT_USER', 'lakewire') }}"
-          secret: "{{ env_var('MINIO_ROOT_PASSWORD', 'change-me-please') }}"
+          key_id: "{{ env_var('S3_ACCESS_KEY', 'lakewire') }}"
+          secret: "{{ env_var('S3_SECRET_KEY', '') }}"
           region: us-east-1
-          endpoint: "{{ env_var('S3_HOSTPORT', 'minio:9000') }}"
+          endpoint: "{{ env_var('S3_HOSTPORT', 's3:9000') }}"
           url_style: path
           use_ssl: false
     ci:

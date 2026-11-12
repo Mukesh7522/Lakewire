@@ -1,4 +1,4 @@
-"""CI helper: load the pageview parquet fixture into the Silver pageviews Delta table on MinIO."""
+"""CI helper: load the pageview parquet fixture into the Silver pageviews Delta table on the S3 store."""
 from __future__ import annotations
 
 import sys

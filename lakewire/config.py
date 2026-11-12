@@ -39,9 +39,9 @@ class Settings:
             stream_url=os.getenv(
                 "STREAM_URL", "https://stream.wikimedia.org/v2/stream/recentchange"
             ),
-            s3_endpoint=os.getenv("S3_ENDPOINT", "http://minio:9000"),
-            s3_access_key=os.getenv("MINIO_ROOT_USER", "lakewire"),
-            s3_secret_key=os.getenv("MINIO_ROOT_PASSWORD", "change-me-please"),
+            s3_endpoint=os.getenv("S3_ENDPOINT", "http://s3:9000"),
+            s3_access_key=os.getenv("S3_ACCESS_KEY", "lakewire"),
+            s3_secret_key=os.getenv("S3_SECRET_KEY", ""),
             lake_bucket=os.getenv("LAKE_BUCKET", "lake"),
             pageview_domains=_csv("PAGEVIEW_DOMAINS", "en,en.m"),
             pageview_top_n=int(os.getenv("PAGEVIEW_TOP_N", "50000")),

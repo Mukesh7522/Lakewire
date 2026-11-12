@@ -2,7 +2,7 @@
 
 ## What "free and always on" really requires
 
-Kafka, Spark, MinIO and Airflow need roughly 12 GB of RAM together. GitHub Actions cannot host that (jobs are capped at 6 hours and are not always-on). The only widely available free option with enough memory is **Oracle Cloud Always Free**: an Ampere A1 VM with up to 4 OCPUs, 24 GB RAM and 200 GB of block storage in total.
+Kafka, Spark, SeaweedFS (the S3 store) and Airflow need roughly 12 GB of RAM together. GitHub Actions cannot host that (jobs are capped at 6 hours and are not always-on). The only widely available free option with enough memory is **Oracle Cloud Always Free**: an Ampere A1 VM with up to 4 OCPUs, 24 GB RAM and 200 GB of block storage in total.
 
 Things to check yourself, because free-tier terms change and I cannot verify them live:
 
@@ -28,7 +28,7 @@ Things to check yourself, because free-tier terms change and I cannot verify the
    curl -fsSL https://raw.githubusercontent.com/YOUR_USER/lakewire/main/scripts/bootstrap_vm.sh -o bootstrap_vm.sh
    bash bootstrap_vm.sh https://github.com/YOUR_USER/lakewire.git
    ```
-4. Log out and in once, then edit `/opt/lakewire/.env`: strong passwords, and a real `USER_AGENT` with your contact email.
+4. Log out and in once, then edit `/opt/lakewire/.env`: a real `USER_AGENT` with your contact email. The bootstrap script already generated strong random S3 and Grafana passwords; compose refuses to start if they are missing.
 5. `cd /opt/lakewire && docker compose up -d --build`. The first build takes 10 to 20 minutes.
 6. `python3 scripts/healthcheck.py` should print `healthy`.
 

@@ -1,4 +1,4 @@
-# CI override: expose MinIO to the runner so dbt (DuckDB) can read the Delta tables Spark wrote.
+# CI override: expose the S3 store to the runner so dbt (DuckDB) can read the Delta tables Spark wrote.
 services:
-  minio:
+  s3:
     ports: ["127.0.0.1:9000:9000"]

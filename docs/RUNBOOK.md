@@ -22,7 +22,7 @@ docker compose logs --tail=100 producer spark-stream
 ## Measure growth in week one
 ```bash
 docker system df -v | head -30
-docker compose exec minio sh -c 'du -sh /data/*'
+docker compose exec s3 du -sh /data
 ```
 Compare after 24 hours and project it against your disk. Adjust `WIKIS` and retention before it matters.
 

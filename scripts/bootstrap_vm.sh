@@ -13,7 +13,14 @@ sudo systemctl enable --now docker
 sudo mkdir -p /opt/lakewire && sudo chown "$USER":"$USER" /opt/lakewire
 [ -d /opt/lakewire/.git ] || git clone "$REPO_URL" /opt/lakewire
 cd /opt/lakewire
-[ -f .env ] || { cp .env.example .env; echo ">> Edit /opt/lakewire/.env (passwords, USER_AGENT) before first start."; }
+if [ ! -f .env ]; then
+  cp .env.example .env
+  chmod 600 .env
+  # Generate strong random secrets so no deployment ever runs on a placeholder password.
+  sed -i "s|^S3_SECRET_KEY=.*|S3_SECRET_KEY=$(openssl rand -hex 24)|" .env
+  sed -i "s|^GRAFANA_ADMIN_PASSWORD=.*|GRAFANA_ADMIN_PASSWORD=$(openssl rand -hex 24)|" .env
+  echo ">> Generated passwords in /opt/lakewire/.env. Edit USER_AGENT (your contact email) before first start."
+fi
 
 # Docker restarts containers on reboot via restart: unless-stopped. A cron safety net checks health hourly.
 ( crontab -l 2>/dev/null | grep -v lakewire-health ; echo "7 * * * * cd /opt/lakewire && python3 scripts/healthcheck.py >> /var/log/lakewire-health.log 2>&1 # lakewire-health" ) | crontab -

@@ -4,7 +4,7 @@ A live streaming and batch lakehouse for Wikipedia activity. It runs 24/7 on a f
 
 ```
 Wikimedia EventStreams ─► producer ─► Kafka ─► Spark Structured Streaming ─► Delta (Bronze ─► Silver) ─┐
-                         (contract + DLQ)                                      on MinIO (S3-compatible) │
+                         (contract + DLQ)                                      on SeaweedFS (S3-compatible) │
 Wikimedia pageview dumps ─► Airflow ─► PySpark ─► Delta (Silver, per-day overwrite) ─────────────────────┤
                                                                                                         ▼
                                           dbt + DuckDB (hourly, Airflow) ─► Gold marts ─► JSON ─► GitHub Pages
@@ -17,7 +17,7 @@ Everything runs from `docker-compose.yml`. Cost: $0 (see `docs/DEPLOY.md` for th
 
 | Piece | Where | Schedule |
 |---|---|---|
-| Producer, Kafka, Spark streaming, MinIO, Airflow, Prometheus, Grafana | Docker on one VM | always on, `restart: unless-stopped` |
+| Producer, Kafka, Spark streaming, SeaweedFS (S3), Airflow, Prometheus, Grafana | Docker on one VM | always on, `restart: unless-stopped` |
 | Marts refresh + JSON export | Airflow `lakewire_marts_hourly` | hourly |
 | Pageview backfill | Airflow `lakewire_pageviews_daily` | daily, waits for the dump, retries |
 | Delta compaction, retention, VACUUM | inside the streaming driver | every 6 h / daily |
@@ -40,12 +40,16 @@ Run in the authoring sandbox (no Docker there):
 - `ruff` clean, `pytest` 15 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing.
 - `dbt build --target ci` on parquet fixtures: 24 of 24 models and tests pass, twice (full and incremental).
 
-**Not run yet** (needs Docker, network and your accounts). The `end-to-end` CI job exists to prove these on its first run:
+**Verified locally with Docker** (the `end-to-end` CI job's steps, run by hand against SeaweedFS as the S3 store):
 
-- Docker images build; Kafka, MinIO and Spark start together.
-- Kafka to Bronze to Silver with Delta on MinIO; replay idempotency.
-- DuckDB `delta_scan` reading MinIO (most likely place for a first-run fix).
-- The Oracle VM, Airflow DAG execution, Grafana, and the three workflows.
+- Producer and Spark images build and run as a non-root user; Kafka, SeaweedFS and Spark start together.
+- Kafka to Bronze to Silver with Delta on SeaweedFS: 15 Bronze, 12 distinct Silver, 2 dead-letter messages.
+- Replay idempotency: after replaying the same events, Silver is unchanged and the dead-letter count doubles.
+- DuckDB `delta_scan` reading Delta from SeaweedFS: `dbt build --target prod` passes 24 of 24, and the export reports 12 events.
+
+**Not run yet** (needs your accounts and a VM): the Airflow image and DAG execution, Grafana, the Oracle VM, and the three GitHub workflows (the `end-to-end` job itself has not run on GitHub).
+
+**Storage note:** MinIO withdrew its community Docker images in 2025, so the S3-compatible store is SeaweedFS (Apache-2.0), pinned in `docker-compose.yml`.
 
 ## Quick start
 

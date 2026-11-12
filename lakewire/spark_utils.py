@@ -1,4 +1,4 @@
-"""Spark session factory: Delta Lake + S3A (MinIO) + Kafka source, UTC everywhere."""
+"""Spark session factory: Delta Lake + S3A (S3-compatible store) + Kafka source, UTC everywhere."""
 from __future__ import annotations
 
 import os
@@ -21,6 +21,8 @@ PACKAGES = ",".join(
 
 def build_spark(app_name: str, settings: Settings | None = None, shuffle_partitions: int = 8) -> SparkSession:
     settings = settings or Settings.from_env()
+    if not settings.s3_secret_key:
+        raise RuntimeError("S3_SECRET_KEY is not set; refusing to start Spark without storage credentials")
     builder = (
         SparkSession.builder.appName(app_name)
         .master(os.getenv("SPARK_MASTER", "local[2]"))

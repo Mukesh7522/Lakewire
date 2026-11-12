@@ -8,7 +8,7 @@ import sys
 import time
 import urllib.request
 
-REQUIRED = ["kafka", "minio", "producer", "spark-stream", "airflow"]
+REQUIRED = ["kafka", "s3", "producer", "spark-stream", "airflow"]
 
 
 def metric(url: str, name: str) -> float | None:

@@ -6,6 +6,7 @@ __pycache__/
 dbt/target/
 dbt/logs/
 dbt/*.duckdb
+dbt/.user.yml
 *.duckdb
 *.duckdb.wal
 site/data/
