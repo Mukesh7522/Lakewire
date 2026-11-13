@@ -15,4 +15,4 @@ ENV PYTHONPATH=/opt/lakewire SPARK_IVY_DIR=/opt/ivy \
 COPY --chown=airflow lakewire /opt/lakewire/lakewire
 COPY --chown=airflow dbt /opt/lakewire/dbt
 COPY --chown=airflow dags /opt/lakewire/dags
-RUN python -c "from lakewire.spark_utils import build_spark; s=build_spark('warm'); s.range(1).count(); s.stop()"
+RUN S3_SECRET_KEY=build-time-only python -c "from lakewire.spark_utils import build_spark; s=build_spark('warm'); s.range(1).count(); s.stop()"

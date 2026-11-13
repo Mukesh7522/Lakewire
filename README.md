@@ -11,7 +11,7 @@ Wikimedia pageview dumps ─► Airflow ─► PySpark ─► Delta (Silver, per
 Prometheus + Grafana  ·  Slack alerts  ·  GitHub Actions CI/CD
 ```
 
-Everything runs from `docker-compose.yml`. Cost: $0 (see `docs/DEPLOY.md` for the free-tier caveats).
+Everything runs from `docker-compose.yml`. All software is open source. Hosting can be $0 on a free-tier VM with a public GitHub repo, with caveats (see `docs/DEPLOY.md`).
 
 ## What runs where
 
@@ -37,7 +37,7 @@ Everything runs from `docker-compose.yml`. Cost: $0 (see `docs/DEPLOY.md` for th
 
 Run in the authoring sandbox (no Docker there):
 
-- `ruff` clean, `pytest` 15 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing.
+- `ruff` clean, `pytest` 16 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection.
 - `dbt build --target ci` on parquet fixtures: 24 of 24 models and tests pass, twice (full and incremental).
 
 **Verified locally with Docker** (the `end-to-end` CI job's steps, run by hand against SeaweedFS as the S3 store):
@@ -47,7 +47,14 @@ Run in the authoring sandbox (no Docker there):
 - Replay idempotency: after replaying the same events, Silver is unchanged and the dead-letter count doubles.
 - DuckDB `delta_scan` reading Delta from SeaweedFS: `dbt build --target prod` passes 24 of 24, and the export reports 12 events.
 
-**Not run yet** (needs your accounts and a VM): the Airflow image and DAG execution, Grafana, the Oracle VM, and the three GitHub workflows (the `end-to-end` job itself has not run on GitHub).
+**Verified locally with the full stack running against the live Wikimedia stream** (`docker compose up`, 2 wikis):
+
+- Producer to Kafka to Spark to Delta on SeaweedFS with real events; Prometheus scrapes all three targets and all 8 Grafana panel queries return data.
+- Airflow image builds, both DAGs import, the hourly marts DAG runs `dbt build --target prod` (24 of 24) and the export, and the dashboard renders the exported JSON as LIVE.
+- The pageview task ingested a full real day (1,200,000 rows) from the Wikimedia dumps. Running it for real found and fixed two bugs: a dropped download connection was not retried, and the hourly marts failed until the pageviews table existed.
+- Measured memory: about 5.5 GB steady state, about 7.5 GB during the daily ingest.
+
+**Not run yet** (needs your accounts and a VM): the Oracle VM, the three GitHub workflows (the `end-to-end` job itself has not run on GitHub), Slack alerts, and long-running behaviour (a week of disk growth, reconnects after Wikimedia outages, compaction and retention).
 
 **Storage note:** MinIO withdrew its community Docker images in 2025, so the S3-compatible store is SeaweedFS (Apache-2.0), pinned in `docker-compose.yml`.
 
@@ -55,7 +62,7 @@ Run in the authoring sandbox (no Docker there):
 
 ```bash
 make install && make test && make dbt-ci     # local checks
-cp .env.example .env && docker compose up -d --build   # needs ~16 GB RAM
+cp .env.example .env && docker compose up -d --build   # needs ~8 GB RAM free
 ```
 
 Production setup: `docs/DEPLOY.md`. Operating it: `docs/RUNBOOK.md`.

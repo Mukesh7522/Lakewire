@@ -4,6 +4,9 @@
 with views as (
     select view_hour, page_title, sum(views) as views
     from {{ ref('stg_pageviews') }}
+    -- Articles only: the main page and namespaced pages (Special:Search, Wikipedia:..., Talk:...) dominate raw counts.
+    where page_title <> 'Main_Page'
+      and not regexp_matches(page_title, '^(Special|Wikipedia|Wikipedia_talk|Talk|User|User_talk|File|File_talk|Category|Category_talk|Template|Template_talk|Help|Portal|Draft|MediaWiki|Module|Book|TimedText):')
     group by view_hour, page_title
 ),
 edits as (

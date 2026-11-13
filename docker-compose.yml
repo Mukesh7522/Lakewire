@@ -61,7 +61,7 @@ services:
   s3:
     image: chrislusf/seaweedfs:4.53
     restart: unless-stopped
-    mem_limit: 1g
+    mem_limit: 2g  # measured ~0.7 GB after a day of data; headroom because it was still creeping up
     command: ["server", "-dir=/data", "-ip.bind=0.0.0.0", "-s3", "-s3.port=9000", "-master.volumeSizeLimitMB=1024", "-volume.max=100"]
     environment:
       # The S3 gateway creates its admin identity from these standard variables.

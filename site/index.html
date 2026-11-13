@@ -287,7 +287,7 @@ footer a{color:var(--mu)}
     <div class="eyebrow">Kafka · Spark · Delta Lake · dbt · Airflow</div>
     <h1>Wikipedia, <span>streamed live</span><br>into a lakehouse.</h1>
     <p class="lede">Every edit on five Wikipedia editions flows through a self-hosted streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
-    <div class="chips"><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span><span class="tag">$0 / month</span></div>
+    <div class="chips"><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span><span class="tag">free-tier hosting</span></div>
     <div class="notice demo" id="n-demo" role="note"><span><b>Demo data.</b> No published pipeline snapshot was found, so this page is showing simulated numbers to demonstrate the dashboard. Nothing below is real Wikipedia activity.</span></div>
     <div class="notice warn" id="n-stale" role="alert"><span id="n-stale-t"></span></div>
 
@@ -665,7 +665,7 @@ function renderTrending() {
   });
   const tb = $('#trend tbody'); tb.replaceChildren();
   $('#trend-count').textContent = `${rows.length} of ${all.length} articles`;
-  if (!rows.length) { const td = el('td', {colSpan: 6, className: 'empty', textContent: 'No articles match your filter.'}); tb.append(el('tr', {}, td)); }
+  if (!rows.length) { const td = el('td', {colSpan: 6, className: 'empty', textContent: all.length ? 'No articles match your filter.' : 'No pageview data yet. The first daily dump is ingested a few hours after a fresh deploy.'}); tb.append(el('tr', {}, td)); }
   rows.forEach((r, i) => {
     const g = r.growth_vs_prev_day, cls = g == null ? 'b-na' : g >= 1.5 ? 'b-hot' : g >= 1 ? 'b-up' : 'b-dn';
     const m = el('div', {className: 'meter'}, el('b')); m.firstChild.style.width = (r.views / mxv * 100) + '%';

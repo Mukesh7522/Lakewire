@@ -5,7 +5,6 @@ import gzip
 import hashlib
 import logging
 import re
-import shutil
 import tempfile
 import time
 from datetime import date, datetime
@@ -87,7 +86,10 @@ def download_hour(day: date, hour: int, dest: Path, user_agent: str, md5sums: di
                               stream=True, timeout=(15, 120)) as resp:
                 resp.raise_for_status()
                 with target.open("wb") as fh:
-                    shutil.copyfileobj(resp.raw, fh, 1 << 20)
+                    # iter_content (not resp.raw) so a connection cut mid-body surfaces as a
+                    # requests exception and is retried instead of killing the whole task.
+                    for chunk in resp.iter_content(1 << 20):
+                        fh.write(chunk)
             expected = md5sums.get(name)
             if (expected and _md5(target) != expected) or not _gzip_ok(target):
                 raise OSError(f"checksum or gzip check failed for {name}")
