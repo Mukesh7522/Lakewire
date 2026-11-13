@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup for a fresh Ubuntu VM (Oracle Cloud Always Free Ampere A1 recommended).
+# One-time setup for a fresh Ubuntu VM (Oracle Cloud Always Free Ampere A1, or any Ubuntu host with 12 GB+ RAM).
 # Usage: bash bootstrap_vm.sh https://github.com/YOUR_USER/lakewire.git
 set -euo pipefail
 REPO_URL="${1:?usage: bootstrap_vm.sh <git-repo-url>}"
@@ -23,5 +23,5 @@ if [ ! -f .env ]; then
 fi
 
 # Docker restarts containers on reboot via restart: unless-stopped. A cron safety net checks health hourly.
-( crontab -l 2>/dev/null | grep -v lakewire-health ; echo "7 * * * * cd /opt/lakewire && python3 scripts/healthcheck.py >> /var/log/lakewire-health.log 2>&1 # lakewire-health" ) | crontab -
+( crontab -l 2>/dev/null | grep -v lakewire-health ; echo "7 * * * * cd /opt/lakewire && python3 scripts/healthcheck.py >> \$HOME/lakewire-health.log 2>&1 # lakewire-health" ) | crontab -
 echo "Log out and back in once so the docker group applies, then: cd /opt/lakewire && docker compose up -d --build"

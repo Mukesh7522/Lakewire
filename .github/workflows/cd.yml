@@ -44,5 +44,6 @@ jobs:
           git reset --hard "$1"
           docker compose up -d --build --remove-orphans
           docker image prune -f >/dev/null
+          docker builder prune -f --keep-storage 5GB >/dev/null
           python3 scripts/healthcheck.py
           REMOTE

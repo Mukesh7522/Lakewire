@@ -86,6 +86,13 @@ jobs:
           $COMPOSE run --rm --no-deps spark-stream python -m lakewire.streaming.edits_stream --once
       - name: Assert Silver unchanged, Bronze and DLQ doubled (run 2)
         run: $COMPOSE run --rm --no-deps spark-stream python scripts/smoke_check.py tests/fixtures/expected.json 2
+      - name: dbt build before any pageviews exist (fresh-deploy path)
+        working-directory: dbt
+        env:
+          S3_HOSTPORT: localhost:9000
+          LAKE_BUCKET: lake
+          DUCKDB_PATH: /tmp/fresh.duckdb
+        run: dbt build --target prod --profiles-dir .
       - name: Seed pageviews Delta table
         run: $COMPOSE run --rm --no-deps spark-stream python scripts/seed_pageviews.py /app/tests/fixtures/pageviews.parquet
       - name: dbt build against Delta on the S3 store (production target)

@@ -7,9 +7,23 @@ The stack was measured running locally (2 wikis, one full day of pageviews): abo
 Things to check yourself, because free-tier terms change and I cannot verify them live:
 
 - Sign-up needs a credit or debit card for identity verification (no prepaid or virtual cards). Staying inside Always Free resources should not be charged. Read the current terms before you start.
-- The Always Free A1 allowance is advertised as 1,500 OCPU-hours and 9,000 GB-hours per month, which is about 2 OCPUs and 12 GB. Larger shapes (4 OCPUs, 24 GB) may need a Pay As You Go account. Check your own console before choosing a shape.
+- The Always Free A1 allowance is 1,500 OCPU-hours and 9,000 GB-hours per month, which is 2 OCPUs and 12 GB always on. Oracle reduced it from 4 OCPUs and 24 GB in June 2026, so older guides quoting 24 GB are out of date. Check your own console before choosing a shape.
 - A1 capacity is sometimes "out of capacity". Retry later or another availability domain.
-- Oracle can reclaim Always Free instances that stay idle for a week, and may close accounts that are inactive for a long time. This workload is continuous, so it should not trigger that.
+- Oracle reclaims instances it judges idle: over 7 days, 95th-percentile CPU, network and (on A1) memory all below 20%. This stack holds well over 20% of 12 GB in memory, so it should not qualify, but check the instance metrics after the first week.
+
+## If you do not want to use Oracle
+
+There is no other free option that fits this stack (checked in November 2026):
+
+| Option | RAM | Verdict |
+|---|---|---|
+| Google Cloud free tier (`e2-micro`, three US regions) | 1 GB | Too small. The stack needs about 6 to 8 GB. |
+| AWS free tier | credits, 6 months | Not free for long. |
+| Azure free VMs | 12 months, up to 4 GB | Not free for long, and too small. |
+| **Your own machine** (a PC, old laptop, mini PC) | whatever it has | Free apart from electricity. Needs 8 GB or more free and to stay on. |
+| **A cheap paid VPS** | 8 to 16 GB | Hetzner Cloud lists 4 vCPU / 8 GB at about 9 to 11 EUR a month and 8 vCPU / 16 GB at about 16 EUR (EU regions). 8 GB is tight against the measured 7.5 GB peak, so prefer 16 GB. |
+
+Your own machine works for everything except the publish step: `publish.yml` pulls the snapshot over SSH, so GitHub must be able to reach the host. At home you would instead run `python -m lakewire.export` on a schedule and push `site/data/*.json` to the repo yourself. That path is not built; ask for it if you go this way.
 - Without a card, no free host in this plan can run the full stack. The fallback would be a smaller design (scheduled micro-batches in GitHub Actions) that I have not built.
 
 ## 1. GitHub
