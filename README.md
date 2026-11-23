@@ -1,6 +1,11 @@
 # Lakewire
 
+[![ci](https://github.com/Mukesh7522/Lakewire/actions/workflows/ci.yml/badge.svg)](https://github.com/Mukesh7522/Lakewire/actions/workflows/ci.yml)
+**[Live dashboard](https://mukesh7522.github.io/Lakewire/)** · [Project summary](docs/SUMMARY.md) · [Incident reports](docs/incidents/) · [Runbook](docs/RUNBOOK.md) · [Deploying](docs/DEPLOY.md)
+
 A live streaming and batch lakehouse for Wikipedia activity. It runs from one `docker-compose.yml` (Kafka included), either on your own computer or on a VM, and publishes a public dashboard to GitHub Pages.
+
+![The live dashboard: edit counts, bot share, trending articles and a pipeline explorer](docs/img/dashboard-overview.jpg)
 
 ```
 Wikimedia EventStreams ─► producer ─► Kafka ─► Spark Structured Streaming ─► Delta (Bronze ─► Silver) ─┐
@@ -11,13 +16,17 @@ Wikimedia pageview dumps ─► Airflow ─► PySpark ─► Delta (Silver, per
 Prometheus + Grafana  ·  Slack alerts  ·  GitHub Actions CI/CD
 ```
 
+The dashboard's pipeline explorer lets you click each stage for what it does and why it was built that way:
+
+![Pipeline explorer: streaming path on top, batch and serving path below](docs/img/pipeline-explorer.jpg)
+
 Everything runs from `docker-compose.yml`. All software is open source. Hosting can be $0 on a free-tier VM with a public GitHub repo, with caveats (see `docs/DEPLOY.md`).
 
 ## What runs where
 
 | Piece | Where | Schedule |
 |---|---|---|
-| Producer, Kafka, Spark streaming, SeaweedFS (S3), Airflow, Prometheus, Grafana | Docker on one VM | always on, `restart: unless-stopped` |
+| Producer, Kafka, Spark streaming, SeaweedFS (S3), Airflow, Prometheus, Grafana | Docker on one machine (your computer or a VM) | always on, `restart: unless-stopped` |
 | Marts refresh + JSON export | Airflow `lakewire_marts_hourly` | hourly |
 | Pageview backfill | Airflow `lakewire_pageviews_daily` | daily, waits for the dump, retries |
 | Delta compaction, retention, VACUUM | inside the streaming driver | every 6 h / daily |
@@ -34,7 +43,13 @@ Everything runs from `docker-compose.yml`. All software is open source. Hosting 
 - **Resumable ingestion.** The producer saves its Wikimedia stream position on a Docker volume and resumes from it after a restart, so a short outage does not drop events (replays are harmless because Silver dedupes on `event_id`).
 - **Compaction never kills the stream.** The Silver `MERGE` and the periodic `OPTIMIZE` share a table, and Delta aborts whichever commits second. The merge is insert-only, so it is retried on conflict; without this a compaction crashed the driver (reproduced: 17 of 40 merges failed under constant compaction, 0 after the fix).
 - **Failure drills, written up.** Consumer killed for 13 minutes (no gaps, no duplicates), poison messages and a type change (dead-lettered, stream unaffected), a deleted pageview day rebuilt identically. See `docs/incidents/`.
-- **Honest freshness.** The dashboard shows a banner when the newest event is older than 30 minutes, and `publish.yml` fails (GitHub emails you) at 45.
+- **Honest freshness.** The dashboard shows a banner when the newest event is older than 30 minutes and always states the age of its snapshot. On the VM path `publish.yml` also fails (GitHub emails you) at 45 minutes.
+
+## What it looks like when something breaks
+
+Grafana during the consumer-outage drill. The gap in "Seconds since last Spark batch" is the 13 minutes the Spark consumer was killed, and the burst in "Spark input rows per second" is it catching up afterwards. The dead-letter spike is a real Wikimedia canary event (since fixed). Write-up: [`docs/incidents/2026-11-23-consumer-outage.md`](docs/incidents/2026-11-23-consumer-outage.md).
+
+![Grafana operations dashboard showing a consumer outage and recovery](docs/img/grafana-ops.jpg)
 
 ## Test status
 
