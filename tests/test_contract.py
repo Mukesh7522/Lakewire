@@ -71,3 +71,14 @@ def test_fixture_matches_expected_counts():
             continue
         counts[classify(raw, ("enwiki", "dewiki", "frwiki", "eswiki", "jawiki"))[0]] += 1
     assert counts == {"ok": expected["producer_ok"], "skip": expected["producer_skip"], "dlq": expected["producer_dlq"]}
+
+
+def test_wikimedia_canary_events_are_skipped_not_dead_lettered():
+    from lakewire.contract import classify
+
+    canary = {"$schema": "/mediawiki/recentchange/1.0.1",
+              "meta": {"dt": "2026-11-23T06:15:00.000Z", "domain": "canary", "id": "70d2479c", "stream": "x"}}
+    assert classify(canary, ("enwiki",)) == ("skip", None)
+    # The same payload without the canary marker really is a contract violation.
+    broken = {**canary, "meta": {**canary["meta"], "domain": "en.wikipedia.org"}}
+    assert classify(broken, ("enwiki",))[0] == "dlq"

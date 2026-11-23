@@ -29,6 +29,8 @@ docker compose exec s3 du -sh /data
 Compare after 24 hours and project it against your disk. Adjust `WIKIS` and retention before it matters.
 
 ## Failure drills (each one is a portfolio story)
+Prove the result with `docker compose exec -T airflow /opt/dbt-venv/bin/python - < scripts/lake_audit.py` (Bronze offset gaps, Silver duplicates, Silver vs Bronze, pageview fingerprints). Completed drills are written up in `docs/incidents/`.
+
 1. **Stop the consumer.** `docker compose stop spark-stream`, wait 10 minutes, start it. Prove no gaps: Bronze offsets are contiguous and Silver has no duplicates.
 2. **Poison message.** Produce a malformed event; it must land in the DLQ and the stream must keep running.
 3. **Schema change.** Add a field (passes) then change `namespace` to a string (DLQ). Screenshot Grafana during both.

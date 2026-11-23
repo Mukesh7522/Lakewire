@@ -33,6 +33,7 @@ Everything runs from `docker-compose.yml`. All software is open source. Hosting 
 - **Disk budget.** Bronze keeps 14 days, Silver 120 days, Kafka 48 hours, and only a few wikis are ingested. Marts in DuckDB are small and kept. Measure your real growth in the first week (`docs/RUNBOOK.md`).
 - **Resumable ingestion.** The producer saves its Wikimedia stream position on a Docker volume and resumes from it after a restart, so a short outage does not drop events (replays are harmless because Silver dedupes on `event_id`).
 - **Compaction never kills the stream.** The Silver `MERGE` and the periodic `OPTIMIZE` share a table, and Delta aborts whichever commits second. The merge is insert-only, so it is retried on conflict; without this a compaction crashed the driver (reproduced: 17 of 40 merges failed under constant compaction, 0 after the fix).
+- **Failure drills, written up.** Consumer killed for 13 minutes (no gaps, no duplicates), poison messages and a type change (dead-lettered, stream unaffected), a deleted pageview day rebuilt identically. See `docs/incidents/`.
 - **Honest freshness.** The dashboard shows a banner when the newest event is older than 30 minutes, and `publish.yml` fails (GitHub emails you) at 45.
 
 ## Test status

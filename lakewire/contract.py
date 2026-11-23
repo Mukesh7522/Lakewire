@@ -49,6 +49,11 @@ def classify(raw: Any, wikis: tuple[str, ...]) -> tuple[str, Any]:
     """Return ("skip", None), ("dlq", [errors]) or ("ok", normalised_event)."""
     if not isinstance(raw, dict):
         return "dlq", ["<root>: event is not a JSON object"]
+    meta = raw.get("meta")
+    if isinstance(meta, dict) and meta.get("domain") == "canary":
+        # Wikimedia emits synthetic canary events every few minutes to test its own pipelines.
+        # They carry only $schema and meta, so they are not bad data and must not reach the DLQ.
+        return "skip", None
     etype, wiki = raw.get("type"), raw.get("wiki")
     if isinstance(etype, str) and isinstance(wiki, str):
         if etype not in WANTED_TYPES or wiki not in wikis:
