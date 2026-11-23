@@ -31,7 +31,7 @@ QUERIES = {
 
 
 def _jsonable(value):
-    if isinstance(value, (datetime,)):
+    if isinstance(value, datetime):
         return value.astimezone(UTC).isoformat() if value.tzinfo else value.isoformat() + "Z"
     if hasattr(value, "isoformat"):
         return value.isoformat()

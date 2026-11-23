@@ -18,6 +18,7 @@ docker compose logs --tail=100 producer spark-stream
 | Spark container restarting | out of memory or Delta conflict | `docker stats`; lower `SPARK_DRIVER_MEMORY` or `WIKIS` |
 | Disk above 80% | retention too long or too many wikis | lower `BRONZE_RETENTION_DAYS`, `SILVER_RETENTION_DAYS`, trim `WIKIS`, then `docker compose up -d` |
 | Dashboard stale after the computer was off or asleep (own-computer setup) | nothing ingested while off; the producer resumes from its saved position, a long outage may leave a gap | start Docker, `python3 scripts/healthcheck.py`, then `powershell -NoProfile -File scripts\publish_local.ps1` |
+| Airflow reports the scheduler unhealthy while the pageview ingest runs | Airflow standalone uses SQLite and therefore the sequential executor, which runs each task inside the scheduler, so the daily ingest (10 to 15 minutes, longer on a slow connection) pauses scheduling and delays the hourly marts run | Expected and self-healing. If the delay matters, give Airflow a Postgres database (standalone then uses the local executor) |
 | Pageview DAG waiting | dump for that day not published yet | sensor retries every 15 minutes for 8 hours |
 
 ## Measure growth in week one

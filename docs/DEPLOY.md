@@ -21,7 +21,14 @@ Be honest with yourself about what "free" costs here: the dashboard is only as l
 4. **Start it.** `docker compose up -d --build` (the first build takes 10 to 20 minutes), then `python scripts\healthcheck.py` should print `healthy`.
 5. **First snapshot.** The hourly marts job runs at the top of the hour. To run it now: `docker compose exec airflow airflow dags trigger lakewire_marts_hourly`. The Trending section stays empty until the first daily pageview run finishes (about 1.2 GB download).
 6. **Publish.** `powershell -NoProfile -File scripts\publish_local.ps1` exports the snapshot and force-pushes the site to `gh-pages` as one commit, so history never grows. Your dashboard appears at `https://YOUR_USER.github.io/lakewire/`.
-7. **Publish every hour.** Run once, replacing the path: `schtasks /Create /SC HOURLY /MO 1 /TN LakewirePublish /TR "powershell -NoProfile -File C:\path\to\Lakewire\scripts\publish_local.ps1"`. In Docker Desktop, enable "Start Docker Desktop when you sign in", and in Windows power settings set sleep to Never while plugged in.
+7. **Publish every hour.** In PowerShell, replacing the path with where you cloned the repo. The second command matters: tasks made with `schtasks` refuse to start on battery by default, which silently stops publishing whenever a laptop is unplugged.
+   ```powershell
+   $script = "C:\path\to\Lakewire\scripts\publish_local.ps1"
+   $action = "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
+   schtasks /Create /SC HOURLY /MO 1 /TN LakewirePublish /TR $action
+   Set-ScheduledTask -TaskName LakewirePublish -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30))
+   ```
+   This form needs a repository path without spaces (`schtasks` strips the quotes). Test it with `Start-ScheduledTask -TaskName LakewirePublish`, then check `Get-ScheduledTaskInfo -TaskName LakewirePublish` shows `LastTaskResult : 0`. The task only runs while you are signed in. In Docker Desktop, enable "Start Docker Desktop when you sign in", and in Windows power settings set sleep to Never while plugged in.
 
 To use less memory, set `WIKIS=enwiki` in `.env` and run `docker compose up -d`.
 
