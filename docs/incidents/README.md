@@ -6,6 +6,7 @@ Times are UTC.
 | Date | Report | Kind | Outcome |
 |---|---|---|---|
 | 2026-11-23 | [Silver stream crashed during compaction](2026-11-23-silver-compaction-crash.md) | real incident | reproduced, fixed with commit-conflict retry |
+| 2026-11-23 | [Kafka's data was never in its volume](2026-11-23-kafka-data-not-persisted.md) | defect found early | migrated without data loss; proven by recreating the container |
 | 2026-11-23 | [Spark broke itself after the laptop woke](2026-11-23-spark-heartbeat-after-sleep.md) | real incident | reproduced with `docker pause`; fixed with a longer Spark timeout |
 | 2026-11-23 | [Laptop slept for 58 minutes](2026-11-23-laptop-sleep.md) | real incident | no data gap; producer resumed from its saved position |
 | 2026-11-23 | [Consumer down for 13 minutes](2026-11-23-consumer-outage.md) | drill | no gaps, no duplicates |

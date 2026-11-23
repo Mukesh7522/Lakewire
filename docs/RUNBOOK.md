@@ -28,6 +28,8 @@ docker compose exec s3 du -sh /data
 ```
 Compare after 24 hours and project it against your disk. Adjust `WIKIS` and retention before it matters.
 
+For the full picture in one command (events per day, duplicates and gaps, dead letters, reconnects, restarts, monitoring coverage, memory, disk): `python scripts/week_report.py`.
+
 ## Failure drills (each one is a portfolio story)
 Prove the result with `docker compose exec -T airflow /opt/dbt-venv/bin/python - < scripts/lake_audit.py` (Bronze offset gaps, Silver duplicates, Silver vs Bronze, pageview fingerprints). Completed drills are written up in `docs/incidents/`.
 

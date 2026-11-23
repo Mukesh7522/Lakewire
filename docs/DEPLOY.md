@@ -21,14 +21,18 @@ Be honest with yourself about what "free" costs here: the dashboard is only as l
 4. **Start it.** `docker compose up -d --build` (the first build takes 10 to 20 minutes), then `python scripts\healthcheck.py` should print `healthy`.
 5. **First snapshot.** The hourly marts job runs at the top of the hour. To run it now: `docker compose exec airflow airflow dags trigger lakewire_marts_hourly`. The Trending section stays empty until the first daily pageview run finishes (about 1.2 GB download).
 6. **Publish.** `powershell -NoProfile -File scripts\publish_local.ps1` exports the snapshot and force-pushes the site to `gh-pages` as one commit, so history never grows. Your dashboard appears at `https://YOUR_USER.github.io/lakewire/`.
-7. **Publish every hour.** In PowerShell, replacing the path with where you cloned the repo. The second command matters: tasks made with `schtasks` refuse to start on battery by default, which silently stops publishing whenever a laptop is unplugged.
+7. **Publish every hour, just after the refresh.** The marts job runs at the top of each UTC hour, so run the publish about 6 minutes later. In PowerShell, replacing the path with where you cloned the repo:
    ```powershell
    $script = "C:\path\to\Lakewire\scripts\publish_local.ps1"
-   $action = "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
-   schtasks /Create /SC HOURLY /MO 1 /TN LakewirePublish /TR $action
-   Set-ScheduledTask -TaskName LakewirePublish -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30))
+   $utc  = [DateTime]::UtcNow
+   $next = [DateTime]::SpecifyKind($utc.Date.AddHours($utc.Hour).AddMinutes(6), 'Utc')
+   if ($next -le $utc) { $next = $next.AddHours(1) }
+   $action   = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
+   $trigger  = New-ScheduledTaskTrigger -Once -At $next.ToLocalTime() -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration (New-TimeSpan -Days 3650)
+   $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30)
+   Register-ScheduledTask -TaskName LakewirePublish -Action $action -Trigger $trigger -Settings $settings
    ```
-   This form needs a repository path without spaces (`schtasks` strips the quotes). Test it with `Start-ScheduledTask -TaskName LakewirePublish`, then check `Get-ScheduledTaskInfo -TaskName LakewirePublish` shows `LastTaskResult : 0`. The task only runs while you are signed in. In Docker Desktop, enable "Start Docker Desktop when you sign in", and in Windows power settings set sleep to Never while plugged in.
+   The battery settings matter: a task made with plain `schtasks` refuses to start on battery, which silently stops publishing whenever a laptop is unplugged. This form also copes with spaces in the path. If the snapshot is stale when the task fires (for example right after the computer wakes from sleep), the script waits up to 8 minutes for the hourly marts run to produce a fresh one. Test it with `Start-ScheduledTask -TaskName LakewirePublish`, then check `Get-ScheduledTaskInfo -TaskName LakewirePublish` shows `LastTaskResult : 0`. The task only runs while you are signed in. In Docker Desktop, enable "Start Docker Desktop when you sign in", and in Windows power settings set sleep to Never while plugged in.
 
 To use less memory, set `WIKIS=enwiki` in `.env` and run `docker compose up -d`.
 

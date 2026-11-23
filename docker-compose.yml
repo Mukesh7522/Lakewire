@@ -35,6 +35,9 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_LOG_RETENTION_HOURS: 48
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx1g"
+      # Without this Kafka writes to /tmp/kafka-logs inside the container and the kafka-data volume stays empty,
+      # so recreating the container would wipe the topic data while Spark's checkpoint remembers the old offsets.
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
       - kafka-data:/var/lib/kafka/data
     healthcheck:

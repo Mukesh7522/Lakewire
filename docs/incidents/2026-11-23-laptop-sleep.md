@@ -64,5 +64,10 @@ waking. That is a separate incident with its own fix: [Spark broke itself after 
 
 ## Follow-ups
 
-- Move the publish schedule to a few minutes after the marts run so a normal hour publishes fresh data.
-- Consider having the publish script check the snapshot's age and wait briefly for a fresh one before pushing.
+Both were done afterwards:
+
+- The publish task now runs 6 minutes after the top of the UTC hour, shortly after the marts run.
+- `scripts/publish_local.ps1` checks the snapshot's age and, if it is older than 65 minutes, waits up to 8 minutes for the
+  hourly marts run to produce a fresh one. Tested against the live stack: a fresh snapshot published immediately, a forced
+  wait that timed out published the old snapshot with a warning, and a wait during which a marts run was triggered
+  picked up and published the new snapshot.
