@@ -40,6 +40,7 @@ Running the whole system against the live stream, not just fixtures, found real 
 | The Silver stream crashed when a compaction overlapped a merge | reproduced: 17 of 40 merges failed under constant compaction, 0 after the fix | commit-conflict retry for the merge and the compaction |
 | Wikimedia's hourly canary test events were dead-lettered | found in the dead-letter queue during the drills | canary events are skipped, with a regression test |
 | A fresh deployment failed every hourly marts run until the first pageview day existed | first hourly run on live data | a missing pageviews table is treated as empty; covered in CI |
+| Spark declared its own executor dead after the host slept, then crashed | log line reproduced with `docker pause`; after the fix a 5-minute freeze left Spark intact | longer Spark network timeout, tested |
 | A dropped download connection killed the whole pageview task | first full-day ingest | per-file retries; test that cuts the connection mid-body |
 
 ## Honest limits

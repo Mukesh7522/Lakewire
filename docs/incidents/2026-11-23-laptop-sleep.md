@@ -51,6 +51,11 @@ machine waking up. `scripts/lake_audit.py` afterwards: Bronze offsets contiguous
 - **Publish and refresh are not coordinated.** The publish task fires on its own clock, so after a wake-up it can run
   before the marts job has produced a fresh snapshot.
 
+## A follow-on problem
+
+The data side was clean, but the sleep also broke Spark's own heartbeat check and the driver crashed ten minutes after
+waking. That is a separate incident with its own fix: [Spark broke itself after the laptop woke up](2026-11-23-spark-heartbeat-after-sleep.md).
+
 ## Limits
 
 - This was one 58-minute sleep. Wikimedia's stream history is finite, so a much longer outage could leave a gap in the

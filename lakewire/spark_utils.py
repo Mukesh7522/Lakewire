@@ -18,6 +18,11 @@ PACKAGES = ",".join(
     ]
 )
 
+# Spark judges its own (local-mode) executor by wall-clock heartbeats, 120 s by default. When the host sleeps the
+# clock jumps, Spark declares the executor dead ("Removing executor driver with no recent heartbeats") and the driver
+# is left broken. In local mode there is no network and no remote executor, so a long timeout costs nothing.
+NETWORK_TIMEOUT_SECONDS = 2 * 3600
+
 
 def build_spark(app_name: str, settings: Settings | None = None, shuffle_partitions: int = 8) -> SparkSession:
     settings = settings or Settings.from_env()
@@ -32,6 +37,7 @@ def build_spark(app_name: str, settings: Settings | None = None, shuffle_partiti
         .config("spark.sql.shuffle.partitions", str(shuffle_partitions))
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.ui.enabled", "false")
+        .config("spark.network.timeout", f"{NETWORK_TIMEOUT_SECONDS}s")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
         .config("spark.hadoop.fs.s3a.endpoint", settings.s3_endpoint)
