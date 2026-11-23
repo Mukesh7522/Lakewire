@@ -18,6 +18,7 @@ from pyspark.sql.streaming import StreamingQueryListener
 from lakewire.config import Settings
 from lakewire.spark_utils import build_spark
 from lakewire.streaming.maintenance import MaintenanceThread
+from lakewire.streaming.retry import retry_on_conflict
 from lakewire.streaming.schemas import (
     BRONZE_SCHEMA,
     SILVER_SCHEMA,
@@ -57,16 +58,21 @@ def ensure_tables(spark: SparkSession, bronze: str, silver: str) -> None:
         spark.createDataFrame([], schema).write.format("delta").partitionBy(part).mode("ignore").save(path)
 
 
-def make_merge(spark: SparkSession, silver: str):
+def make_merge(spark: SparkSession, silver: str, attempts: int = 5):
     def merge_batch(batch_df: DataFrame, batch_id: int) -> None:
         deduped = batch_df.dropDuplicates(["event_id"])
-        (
-            DeltaTable.forPath(spark, silver)
-            .alias("t")
-            .merge(deduped.alias("s"), "t.event_id = s.event_id AND t.event_date = s.event_date")
-            .whenNotMatchedInsertAll()
-            .execute()
-        )
+
+        def do_merge() -> None:
+            (
+                DeltaTable.forPath(spark, silver)
+                .alias("t")
+                .merge(deduped.alias("s"), "t.event_id = s.event_id AND t.event_date = s.event_date")
+                .whenNotMatchedInsertAll()
+                .execute()
+            )
+
+        # The periodic OPTIMIZE shares this table; losing a commit race must not kill the stream.
+        retry_on_conflict(do_merge, attempts=attempts)
 
     return merge_batch
 

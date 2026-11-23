@@ -13,11 +13,13 @@ import time
 from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 
+from lakewire.streaming.retry import retry_on_conflict
+
 log = logging.getLogger("lakewire.maintenance")
 
 
 def optimize(spark: SparkSession, path: str) -> None:
-    DeltaTable.forPath(spark, path).optimize().executeCompaction()
+    retry_on_conflict(lambda: DeltaTable.forPath(spark, path).optimize().executeCompaction(), attempts=3)
 
 
 def purge_older_than(spark: SparkSession, path: str, date_col: str, days: int) -> None:

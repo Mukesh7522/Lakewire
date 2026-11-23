@@ -32,13 +32,14 @@ Everything runs from `docker-compose.yml`. All software is open source. Hosting 
 - **Data contract at the edge.** Events that break `lakewire/contracts/recentchange.schema.json` go to `wiki.edits.dlq`. Additive fields pass; type changes and missing required fields do not.
 - **Disk budget.** Bronze keeps 14 days, Silver 120 days, Kafka 48 hours, and only a few wikis are ingested. Marts in DuckDB are small and kept. Measure your real growth in the first week (`docs/RUNBOOK.md`).
 - **Resumable ingestion.** The producer saves its Wikimedia stream position on a Docker volume and resumes from it after a restart, so a short outage does not drop events (replays are harmless because Silver dedupes on `event_id`).
+- **Compaction never kills the stream.** The Silver `MERGE` and the periodic `OPTIMIZE` share a table, and Delta aborts whichever commits second. The merge is insert-only, so it is retried on conflict; without this a compaction crashed the driver (reproduced: 17 of 40 merges failed under constant compaction, 0 after the fix).
 - **Honest freshness.** The dashboard shows a banner when the newest event is older than 30 minutes, and `publish.yml` fails (GitHub emails you) at 45.
 
 ## Test status
 
 Run in the authoring sandbox (no Docker there):
 
-- `ruff` clean, `pytest` 21 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection, stream resume after a restart (including a rejected saved position), Slack alerts.
+- `ruff` clean, `pytest` 25 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection, stream resume after a restart (including a rejected saved position), Slack alerts, Delta commit-conflict retry.
 - `dbt build --target ci` on parquet fixtures: 24 of 24 models and tests pass, twice (full and incremental).
 
 **Verified locally with Docker** (the `end-to-end` CI job's steps, run by hand against SeaweedFS as the S3 store):
