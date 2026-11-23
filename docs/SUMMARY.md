@@ -16,6 +16,7 @@ The whole system runs from one `docker-compose.yml`.
 | Tests | 26 unit tests, 24 dbt model and data tests, and an end-to-end CI job that runs real Kafka, SeaweedFS, Spark and Delta in GitHub's runners |
 | Idempotency | CI replays the same events twice and asserts that Silver does not change |
 | Consumer outage drill | consumer killed for 13 minutes; afterwards 0 gaps in Bronze offsets, 0 duplicate offsets, 0 duplicate events in Silver |
+| Laptop sleep (unplanned) | host asleep for 58 minutes; the missed hour was backfilled in about 30 seconds, 0 gaps, 0 duplicates |
 | Rebuild drill | a deleted pageview day was rebuilt with identical rows, total views and a content fingerprint over every row |
 
 Figures from a longer run (events per day, disk growth, restarts) are not included yet: the system has only been running
@@ -43,7 +44,7 @@ Running the whole system against the live stream, not just fixtures, found real 
 
 ## Honest limits
 
-- It runs on a single machine. Docker restarts crashed containers, but nothing survives that machine being off.
+- It runs on a single machine. Docker restarts crashed containers and the producer resumes after the machine sleeps, but nothing is ingested while it is off, and a very long outage can exceed Wikimedia's replay window.
 - Airflow runs on SQLite with the sequential executor, so the daily pageview ingest pauses scheduling for its duration.
 - Kafka keeps 48 hours of data; an outage longer than that loses the oldest events.
 - It is a portfolio system on a public dataset, not a production service with an on-call rotation.

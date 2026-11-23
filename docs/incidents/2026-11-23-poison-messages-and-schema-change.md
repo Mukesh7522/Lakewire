@@ -45,8 +45,9 @@ marker still goes to the DLQ. Deployed to the live producer at 07:24:50.
 
 The two canary messages that arrived at 07:15 (DLQ offsets 6 and 7, `meta.dt` 07:15:00, domain `canary`) were read back
 out of the DLQ and replayed through the deployed producer image at 07:26: `skip 2, dlq 0`, and the DLQ end offset stayed
-at 8. The remaining check is live: the next canaries are due at 08:15, and the DLQ end offset should still be 8 afterwards
-(`kafka-get-offsets.sh --topic wiki.edits.dlq`).
+at 8. Live confirmation: the 08:15 canaries arrived while the laptop was asleep (see the laptop-sleep report), so the producer
+received them in its wake-up backfill. The DLQ end offset was still 8 at 08:56 and again at 09:03, so they were skipped,
+not dead-lettered.
 
 ## Prevention
 

@@ -13,7 +13,7 @@ There are two ways to run Lakewire. Kafka, Spark, the S3 store, Airflow and the 
 
 What you need: Windows with Docker Desktop (WSL 2), about 8 GB of RAM available to Docker, and 20 GB of free disk. The stack was measured at about 5.5 GB steady and 7.5 GB while the daily pageview ingest runs, with two wikis.
 
-Be honest with yourself about what "free" costs here: the dashboard is only as live as the computer. While it is off or asleep nothing is ingested. The producer saves its position and resumes from it on restart (verified across a short restart, not across hours), so a short sleep is recovered, but a long outage may leave a gap. A laptop on battery with the lid closed is not a server.
+Be honest with yourself about what "free" costs here: the dashboard is only as live as the computer. While it is off or asleep nothing is ingested. The producer saves its position and resumes from it, so a sleep is recovered: a real 58-minute sleep was caught up in about 30 seconds with no gap (`docs/incidents/2026-11-23-laptop-sleep.md`). A much longer outage may still leave a gap, because Wikimedia's stream history is finite. A laptop on battery with the lid closed is not a server.
 
 1. **GitHub.** Create a public repository, push this code to `main`, and set `REPO_URL` near the top of the script in `site/index.html`. In Settings, Pages, set Source to **Deploy from a branch**, branch `gh-pages`, folder `/ (root)`. Do not create the `production` environment, secrets or the `DEPLOY_TARGET` variable: those are for Path B, and without them the VM workflows skip themselves instead of failing.
 2. **Secrets.** `powershell -NoProfile -File scripts\init_env.ps1` creates `.env` with random passwords and two wikis. Edit `USER_AGENT` to include your contact email.
