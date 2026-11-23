@@ -18,6 +18,9 @@ concurrency:
 
 jobs:
   publish:
+    # Only for the VM setup: set the repository variable DEPLOY_TARGET to 'vm'. On your own machine,
+    # scripts/publish_local.ps1 publishes instead (see docs/DEPLOY.md).
+    if: vars.DEPLOY_TARGET == 'vm'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:

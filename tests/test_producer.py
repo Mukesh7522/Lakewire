@@ -82,3 +82,71 @@ def test_live_stream_survives_a_dropped_connection_and_resumes_with_last_event_i
     server.shutdown()
     assert got == ["ok", "ok"]
     assert seen_headers[0] is None and seen_headers[1] == "id-1"
+
+
+def _sse_server(reject_id=None):
+    """Local SSE server. Records Last-Event-ID headers; answers 400 when the id equals reject_id."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    seen = []
+    ev = {"meta": {"id": "a", "dt": "2026-11-10T00:00:00Z"}, "type": "edit", "wiki": "enwiki",
+          "title": "T", "user": "U"}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802
+            seen.append(self.headers.get("Last-Event-ID"))
+            if reject_id is not None and seen[-1] == reject_id:
+                self.send_response(400)
+                self.end_headers()
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.end_headers()
+            body = json.dumps({**ev, "meta": {**ev["meta"], "id": f"e{len(seen)}"}})
+            self.wfile.write(f"id: id-{len(seen)}\ndata: {body}\n\n".encode())
+            self.wfile.flush()
+
+        def log_message(self, *a):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server, seen
+
+
+def _settings_for(server, state_file):
+    base = Settings.from_env()
+    return Settings(**{**base.__dict__, "stream_url": f"http://127.0.0.1:{server.server_port}/s",
+                       "last_event_id_file": str(state_file)})
+
+
+def test_stream_position_survives_a_restart(tmp_path):
+    """A new process must resume from the id the previous one saved, not start from live."""
+    server, seen = _sse_server()
+    state = tmp_path / "last_event_id"
+    settings = _settings_for(server, state)
+    def one_process_lifetime():
+        got = []
+        producer.stream_live(settings, lambda p: got.append(producer.process_message(p, settings, FakeSink())),
+                             lambda: len(got) >= 1)
+
+    one_process_lifetime()
+    one_process_lifetime()
+    server.shutdown()
+    assert seen[0] is None and seen[1] == "id-1"
+    assert state.read_text() == "id-2"
+
+
+def test_a_rejected_saved_position_falls_back_to_live(tmp_path):
+    server, seen = _sse_server(reject_id="too-old")
+    state = tmp_path / "last_event_id"
+    state.write_text("too-old")
+    settings = _settings_for(server, state)
+    got = []
+    producer.stream_live(settings, lambda p: got.append(producer.process_message(p, settings, FakeSink())),
+                         lambda: len(got) >= 1)
+    server.shutdown()
+    assert got == ["ok"]
+    assert seen == ["too-old", None]  # rejected once, then retried from live
+    assert state.read_text() == "id-2"

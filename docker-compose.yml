@@ -97,7 +97,11 @@ services:
     mem_limit: 256m
     depends_on:
       kafka-init: {condition: service_completed_successfully}
-    environment: *env
+    environment:
+      <<: *env
+      LAST_EVENT_ID_FILE: /state/last_event_id  # resume after restarts and downtime instead of losing events
+    volumes:
+      - producer-state:/state
     ports: ["127.0.0.1:8000:8000"]
 
   spark-stream:
@@ -159,6 +163,7 @@ services:
     ports: ["127.0.0.1:3000:3000"]
 
 volumes:
+  producer-state:
   kafka-data:
   s3-data:
   airflow-home:

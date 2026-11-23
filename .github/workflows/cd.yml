@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    # Only for the VM setup: set the repository variable DEPLOY_TARGET to 'vm' (Settings > Variables).
+    if: vars.DEPLOY_TARGET == 'vm' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production

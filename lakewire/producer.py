@@ -8,10 +8,12 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import signal
 import sys
 import time
 from collections.abc import Callable, Iterable, Iterator
+from pathlib import Path
 from typing import Any, Protocol
 
 from prometheus_client import Counter, Gauge, start_http_server
@@ -28,6 +30,7 @@ LAST_EVENT_AGE = Gauge("lakewire_last_event_age_seconds", "Seconds since last ac
 
 
 _STATE = {"last": time.time()}
+SAVE_EVERY_SECONDS = 5.0
 
 
 class Sink(Protocol):
@@ -108,30 +111,75 @@ class KafkaSink:
         self._producer.flush(30)
 
 
+def _load_last_id(path: str) -> str | None:
+    if not path:
+        return None
+    try:
+        value = Path(path).read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return value or None
+
+
+def _save_last_id(path: str, value: str | None) -> None:
+    """Atomically remember where the stream stopped, so a restart resumes instead of losing events."""
+    if not path or not value:
+        return
+    try:
+        target = Path(path)
+        tmp = target.with_suffix(".tmp")
+        tmp.write_text(value, encoding="utf-8")
+        os.replace(tmp, target)
+    except OSError as exc:
+        log.warning("could not save last event id: %s", exc)
+
+
+def _forget_last_id(path: str) -> None:
+    if path:
+        Path(path).unlink(missing_ok=True)
+
+
 def stream_live(settings: Settings, handler: Callable[[str], None], stop: Callable[[], bool]) -> None:
     import requests
 
-    last_id: str | None = None
+    state_file = settings.last_event_id_file
+    last_id: str | None = _load_last_id(state_file)
+    if last_id:
+        log.info("resuming the stream from the saved position")
+    saved_at = time.monotonic()
     backoff = 1.0
-    while not stop():
-        headers = {"User-Agent": settings.user_agent, "Accept": "text/event-stream"}
-        if last_id:
-            headers["Last-Event-ID"] = last_id
-        try:
-            with requests.get(settings.stream_url, headers=headers, stream=True, timeout=(10, 90)) as resp:
-                resp.raise_for_status()
-                log.info("connected to %s", settings.stream_url)
-                backoff = 1.0
-                for event_id, data in iter_sse(resp.iter_lines(chunk_size=1024, decode_unicode=True)):
-                    last_id = event_id or last_id
-                    handler(data)
-                    if stop():
-                        return
-        except requests.RequestException as exc:
-            RECONNECTS.inc()
-            log.warning("stream error (%s); reconnecting in %.0fs", exc, backoff)
-            time.sleep(backoff)
-            backoff = min(backoff * 2, 60.0)
+    try:
+        while not stop():
+            headers = {"User-Agent": settings.user_agent, "Accept": "text/event-stream"}
+            if last_id:
+                headers["Last-Event-ID"] = last_id
+            try:
+                with requests.get(settings.stream_url, headers=headers, stream=True, timeout=(10, 90)) as resp:
+                    resp.raise_for_status()
+                    log.info("connected to %s", settings.stream_url)
+                    backoff = 1.0
+                    for event_id, data in iter_sse(resp.iter_lines(chunk_size=1024, decode_unicode=True)):
+                        last_id = event_id or last_id
+                        handler(data)
+                        if time.monotonic() - saved_at >= SAVE_EVERY_SECONDS:
+                            _save_last_id(state_file, last_id)
+                            saved_at = time.monotonic()
+                        if stop():
+                            return
+            except requests.RequestException as exc:
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if last_id and status is not None and 400 <= status < 500:
+                    # The server no longer accepts our position (too old). Start from live instead of looping.
+                    log.warning("saved stream position rejected (HTTP %s); starting from live", status)
+                    last_id = None
+                    _forget_last_id(state_file)
+                    continue
+                RECONNECTS.inc()
+                log.warning("stream error (%s); reconnecting in %.0fs", exc, backoff)
+                time.sleep(backoff)
+                backoff = min(backoff * 2, 60.0)
+    finally:
+        _save_last_id(state_file, last_id)
 
 
 def replay(path: str, settings: Settings, sink: Sink) -> dict[str, int]:

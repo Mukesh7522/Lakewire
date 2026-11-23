@@ -1,6 +1,6 @@
 # Lakewire
 
-A live streaming and batch lakehouse for Wikipedia activity. It runs 24/7 on a free VM, deploys itself from GitHub, and publishes a public dashboard.
+A live streaming and batch lakehouse for Wikipedia activity. It runs from one `docker-compose.yml` (Kafka included), either on your own computer or on a VM, and publishes a public dashboard to GitHub Pages.
 
 ```
 Wikimedia EventStreams ─► producer ─► Kafka ─► Spark Structured Streaming ─► Delta (Bronze ─► Silver) ─┐
@@ -22,8 +22,8 @@ Everything runs from `docker-compose.yml`. All software is open source. Hosting 
 | Pageview backfill | Airflow `lakewire_pageviews_daily` | daily, waits for the dump, retries |
 | Delta compaction, retention, VACUUM | inside the streaming driver | every 6 h / daily |
 | CI (lint, tests, dbt, end-to-end) | GitHub Actions `ci.yml` | every push and PR |
-| CD (deploy to VM + health check) | GitHub Actions `cd.yml` | after CI passes on `main` |
-| Dashboard publish + freshness alarm | GitHub Actions `publish.yml` | every 2 h |
+| CD (deploy to VM + health check) | GitHub Actions `cd.yml`, VM path only | after CI passes on `main` |
+| Dashboard publish + freshness alarm | VM path: GitHub Actions `publish.yml` every 2 h. Own computer: `scripts/publish_local.ps1` | scheduled |
 
 ## Design decisions worth knowing
 
@@ -31,13 +31,14 @@ Everything runs from `docker-compose.yml`. All software is open source. Hosting 
 - **Effectively-once.** Kafka is at-least-once. A watermark plus `dropDuplicatesWithinWatermark` bounds state, and an insert-only `MERGE` on `event_id` makes redelivery harmless. CI replays the same events twice and asserts Silver does not change.
 - **Data contract at the edge.** Events that break `lakewire/contracts/recentchange.schema.json` go to `wiki.edits.dlq`. Additive fields pass; type changes and missing required fields do not.
 - **Disk budget.** Bronze keeps 14 days, Silver 120 days, Kafka 48 hours, and only a few wikis are ingested. Marts in DuckDB are small and kept. Measure your real growth in the first week (`docs/RUNBOOK.md`).
+- **Resumable ingestion.** The producer saves its Wikimedia stream position on a Docker volume and resumes from it after a restart, so a short outage does not drop events (replays are harmless because Silver dedupes on `event_id`).
 - **Honest freshness.** The dashboard shows a banner when the newest event is older than 30 minutes, and `publish.yml` fails (GitHub emails you) at 45.
 
 ## Test status
 
 Run in the authoring sandbox (no Docker there):
 
-- `ruff` clean, `pytest` 16 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection.
+- `ruff` clean, `pytest` 21 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection, stream resume after a restart (including a rejected saved position), Slack alerts.
 - `dbt build --target ci` on parquet fixtures: 24 of 24 models and tests pass, twice (full and incremental).
 
 **Verified locally with Docker** (the `end-to-end` CI job's steps, run by hand against SeaweedFS as the S3 store):
@@ -65,4 +66,4 @@ make install && make test && make dbt-ci     # local checks
 cp .env.example .env && docker compose up -d --build   # needs ~8 GB RAM free
 ```
 
-Production setup: `docs/DEPLOY.md`. Operating it: `docs/RUNBOOK.md`.
+Free setup without any cloud account (your own computer), or on a VM: `docs/DEPLOY.md`. Operating it: `docs/RUNBOOK.md`.

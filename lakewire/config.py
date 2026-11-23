@@ -27,6 +27,7 @@ class Settings:
     silver_retention_days: int
     stream_trigger_seconds: int
     slack_webhook_url: str
+    last_event_id_file: str
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -49,6 +50,7 @@ class Settings:
             silver_retention_days=int(os.getenv("SILVER_RETENTION_DAYS", "120")),
             stream_trigger_seconds=int(os.getenv("STREAM_TRIGGER_SECONDS", "30")),
             slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL", ""),
+            last_event_id_file=os.getenv("LAST_EVENT_ID_FILE", ""),
         )
 
     def lake_path(self, layer: str, table: str) -> str:

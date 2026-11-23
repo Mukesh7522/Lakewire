@@ -286,7 +286,7 @@ footer a{color:var(--mu)}
   <section class="hero" id="overview">
     <div class="eyebrow">Kafka · Spark · Delta Lake · dbt · Airflow</div>
     <h1>Wikipedia, <span>streamed live</span><br>into a lakehouse.</h1>
-    <p class="lede">Every edit on five Wikipedia editions flows through a self-hosted streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
+    <p class="lede">Every edit on <span id="hero-wikis">five Wikipedia editions</span> flows through a self-hosted streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
     <div class="chips"><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span><span class="tag">free-tier hosting</span></div>
     <div class="notice demo" id="n-demo" role="note"><span><b>Demo data.</b> No published pipeline snapshot was found, so this page is showing simulated numbers to demonstrate the dashboard. Nothing below is real Wikipedia activity.</span></div>
     <div class="notice warn" id="n-stale" role="alert"><span id="n-stale-t"></span></div>
@@ -521,6 +521,7 @@ function renderKpis() {
   spark($('#sp-day'), series.map((_, i) => series.slice(Math.max(0, i - 23), i + 1).reduce((a, b) => a + b, 0)).slice(-48), '#8ab4ff');
   let run = 0; spark($('#sp-total'), series.map(v => run += v), '#c792ea');
   $('#f-hour').textContent = `${S.wikis.length} wikis · ${S.hours.length} h of history`;
+  if (S.wikis.length) $('#hero-wikis').textContent = `${S.wikis.length} Wikipedia edition${S.wikis.length === 1 ? '' : 's'}`;
   $('#f-day').textContent = 'rolling 24 h window';
   $('#f-total').textContent = 'within retention window';
   $('#gen').textContent = 'Snapshot generated ' + new Date(d.health.generated_at).toUTCString() + '.';
