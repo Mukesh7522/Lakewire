@@ -1,13 +1,73 @@
 # Deploying for free, step by step
 
-There are two ways to run Lakewire. Kafka, Spark, the S3 store, Airflow and the monitoring all run as containers from the one `docker-compose.yml` in both, so there is no separate Kafka or other service to set up.
+There are three ways to run Lakewire. In paths A and B, Kafka, Spark, the S3 store, Airflow and the monitoring all run as containers from the one `docker-compose.yml`, so there is no separate Kafka or other service to set up. Path C needs no server at all.
 
-| | Path A: your own computer | Path B: a VM |
+| | Path A: your own computer | Path B: a VM | Path C: GitHub only |
+|---|---|---|---|
+| Cost | free (electricity) | free on Oracle if it works for you, otherwise about 9 to 16 EUR a month | free |
+| Accounts | GitHub only | GitHub plus a cloud account | GitHub only |
+| Always on | only while the computer is on and awake | yes | yes (scheduled, hourly) |
+| Runs | the full Kafka and Spark stack | the full Kafka and Spark stack | a lighter DuckDB version |
+| Dashboard publishing | `scripts/publish_local.ps1` pushes it | GitHub Actions pulls it over SSH | the workflow publishes it |
+
+## Path C: GitHub only (free, nothing runs on your computer)
+
+A lighter version of the pipeline runs entirely on scheduled GitHub Actions workflows, which are free for public
+repositories. No server, no Docker, no cloud account, no database. It is a different system from the Kafka and Spark one,
+built for the same dashboard:
+
+| | Full (paths A and B) | Lite (path C) |
 |---|---|---|
-| Cost | free (electricity) | free on Oracle if it works for you, otherwise about 9 to 16 EUR a month |
-| Accounts | GitHub only | GitHub plus a cloud account |
-| Always on | only while the computer is on and awake | yes |
-| Dashboard publishing | `scripts/publish_local.ps1` pushes it | GitHub Actions pulls it over SSH |
+| Ingestion | live stream into Kafka, always on | a scheduled job replays from a saved position each hour |
+| Processing | Spark Structured Streaming into Delta | DuckDB into Parquet |
+| Orchestration | Airflow | GitHub Actions schedules |
+| Storage | Delta on an S3-compatible store | Parquet files in a git branch |
+| Raw history | Bronze 14 days, Silver 120 days | Silver 7 days, no Bronze |
+| Freshness | seconds, marts rebuilt hourly | up to about an hour plus GitHub's scheduling delay |
+| Monitoring | Prometheus and Grafana | run history, annotations, failure emails |
+| Cost | electricity, or a VM | $0 (public repository) |
+
+What the lite version keeps: the data contract and the dead-letter log, deduplication by event id, the dbt models and all
+24 of their tests (rebuilt from scratch every hour), the same marts, and the same dashboard, which describes the mode it
+is running in. State lives in two branches that every run replaces with a single commit, so the repository never grows:
+`data` (the Parquet files and the saved stream position) and `gh-pages` (the published site).
+
+Measured on the live Wikimedia stream (five wikis): the first run replays an hour in about 100 seconds; a normal hourly
+run takes about a minute; an hour of edits is about 0.6 MB, so the 7-day window is about 100 MB; a day of pageviews
+(top 20,000 pages per hour) is about 5 MB and takes about 8 minutes to download and process. The pageview step was
+compared with the Spark job on a real day (top 50,000 per hour): the same 1,200,000 rows, 93,800,476 total views and the
+same content fingerprint.
+
+Setup, about 10 minutes:
+
+1. Push this repository to a **public** GitHub repository (`main`). Edit nothing else.
+2. Settings, Pages, Source: **Deploy from a branch**, branch `gh-pages`, folder `/ (root)`.
+3. Leave the repository variable `DEPLOY_TARGET` unset (or set it to `github`). Setting it to `vm` or `local` switches
+   the lite workflows off, because the system runs somewhere else.
+4. Actions, `lakewire-lite-hourly`, **Run workflow**. The first run takes about 5 minutes because it replays three hours.
+5. Actions, `lakewire-lite-pageviews`, **Run workflow**. It loads yesterday and the day before (about 15 to 20 minutes).
+   After that it runs by itself every day.
+6. Open the site. The hero should say "collected hourly" and the pipeline explorer should show the GitHub Actions
+   diagram. Trending fills in after the pageview run and the next hourly run.
+
+Reading a run: every run ends with a summary line in its annotations, for example `read=108000, filtered=93000,
+kept_new=15000, dlq=0, caught_up=True`. A failed run shows its error as an annotation and GitHub emails you.
+
+If the full stack is running on your computer, switch it off once the first lite run has succeeded (otherwise both publish
+to `gh-pages`): disable the scheduled task (`Disable-ScheduledTask -TaskName LakewirePublish`) and run
+`docker compose down` (without `-v`, so the old data is kept).
+
+Limits to know about:
+
+- GitHub can delay scheduled runs, especially around the top of the hour (this one runs at :23 for that reason), and may
+  drop queued runs under very heavy load. A missed run is harmless: the next one resumes from the saved position, as long
+  as the gap is inside Wikimedia's replay window (7 to 31 days).
+- GitHub disables scheduled workflows after 60 days with no repository activity. Push any commit, or re-enable them in
+  the Actions tab, to restart them.
+- The repository must stay public for the free Actions minutes and Pages. The `data` branch is public too: it holds public
+  Wikipedia edit metadata, including editor usernames, which are public in the stream.
+- The scheduling, the token push and the Pages rebuild request are GitHub-specific and can only be proven by a real run.
+  Everything else was run end to end against the live stream in a container that imitates a runner.
 
 ## Path A: your own computer (free, no cloud account)
 

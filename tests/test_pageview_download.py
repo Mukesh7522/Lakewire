@@ -3,7 +3,7 @@ import threading
 from datetime import date
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from lakewire.batch import pageviews
+from lakewire.batch import dumps
 
 BODY = gzip.compress(b"en Main_Page 5 0\n" * 200_000)
 
@@ -29,10 +29,10 @@ def test_download_retries_when_the_connection_drops_mid_body(tmp_path, monkeypat
 
     server = HTTPServer(("127.0.0.1", 0), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    monkeypatch.setattr(pageviews, "BASE_URL", f"http://127.0.0.1:{server.server_port}")
-    monkeypatch.setattr(pageviews.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(dumps, "BASE_URL", f"http://127.0.0.1:{server.server_port}")
+    monkeypatch.setattr(dumps.time, "sleep", lambda _s: None)
     try:
-        out = pageviews.download_hour(date(2026, 11, 10), 5, tmp_path, "test-agent", {})
+        out = dumps.download_hour(date(2026, 11, 10), 5, tmp_path, "test-agent", {})
     finally:
         server.shutdown()
     assert len(calls) == 2

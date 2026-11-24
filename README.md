@@ -3,7 +3,7 @@
 [![ci](https://github.com/Mukesh7522/Lakewire/actions/workflows/ci.yml/badge.svg)](https://github.com/Mukesh7522/Lakewire/actions/workflows/ci.yml)
 **[Live dashboard](https://mukesh7522.github.io/Lakewire/)** · [Project summary](docs/SUMMARY.md) · [Incident reports](docs/incidents/) · [Runbook](docs/RUNBOOK.md) · [Deploying](docs/DEPLOY.md)
 
-A live streaming and batch lakehouse for Wikipedia activity. It runs from one `docker-compose.yml` (Kafka included), either on your own computer or on a VM, and publishes a public dashboard to GitHub Pages.
+A lakehouse for Wikipedia activity that publishes a public dashboard to GitHub Pages. It runs in one of two ways: a **lite** version entirely on scheduled GitHub Actions (free, nothing to host), or the **full** Kafka and Spark stack from one `docker-compose.yml` on your own computer or a VM. The live dashboard says which one is running.
 
 ![The live dashboard: edit counts, bot share, trending articles and a pipeline explorer](docs/img/dashboard-overview.jpg)
 
@@ -20,9 +20,29 @@ The dashboard's pipeline explorer lets you click each stage for what it does and
 
 ![Pipeline explorer: streaming path on top, batch and serving path below](docs/img/pipeline-explorer.jpg)
 
-Everything runs from `docker-compose.yml`. All software is open source. Hosting can be $0 on a free-tier VM with a public GitHub repo, with caveats (see `docs/DEPLOY.md`).
+All software is open source. The diagram above is the full version. The lite version replaces Kafka, Spark and Airflow with a scheduled job:
+
+```
+Wikimedia EventStreams ─► collector (contract + DLQ) ─► dedupe + merge ─► Parquet files in a git branch ─┐
+  (replayed hourly from a saved position)                                                                │
+Wikimedia pageview dumps ─► daily job (DuckDB) ─► Parquet (top pages per hour) ────────────────────────┤
+                                                                                                         ▼
+                       dbt + DuckDB (rebuilt every hour, all data tests) ─► Gold marts ─► JSON ─► GitHub Pages
+```
+
+Both versions feed the same dbt models and the same dashboard. How to run either one: `docs/DEPLOY.md`.
 
 ## What runs where
+
+**Lite version (GitHub Actions only, nothing to host):**
+
+| Piece | Where | Schedule |
+|---|---|---|
+| Collect new edits, store them, rebuild the marts, publish | GitHub Actions `lite-hourly.yml` | hourly, at :23 |
+| Load the previous day's pageviews | GitHub Actions `lite-pageviews.yml` | daily |
+| Data and published site | two git branches, each replaced by one commit per run | every run |
+
+**Full version (Docker):**
 
 | Piece | Where | Schedule |
 |---|---|---|
@@ -55,7 +75,7 @@ Grafana during the consumer-outage drill. The gap in "Seconds since last Spark b
 
 Run in the authoring sandbox (no Docker there):
 
-- `ruff` clean, `pytest` 25 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, pageview download retry after a dropped connection, stream resume after a restart (including a rejected saved position), Slack alerts, Delta commit-conflict retry.
+- `ruff` clean, `pytest` 54 passed: data contract, SSE parser, live-stream reconnect with `Last-Event-ID` against a local server, Spark transforms, streaming dedupe with watermark, pageview parsing, and the lite pipeline (Parquet store, collector against a fake stream, git storage, pageviews, and an end-to-end run with real git and real dbt), pageview download retry after a dropped connection, stream resume after a restart (including a rejected saved position), Slack alerts, Delta commit-conflict retry.
 - `dbt build --target ci` on parquet fixtures: 24 of 24 models and tests pass, twice (full and incremental).
 
 **Verified locally with Docker** (the `end-to-end` CI job's steps, run by hand against SeaweedFS as the S3 store):

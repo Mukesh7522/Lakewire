@@ -62,6 +62,9 @@ def export(db_path: str, out_dir: str) -> dict[str, int]:
                     ts = ts if ts.tzinfo else ts.replace(tzinfo=UTC)
                     lag = int((now - ts).total_seconds())
                 payload["lag_seconds"] = lag
+                # Which pipeline produced this snapshot: "full" (Kafka, Spark, Airflow) or "lite" (GitHub Actions).
+                # The dashboard uses it to describe itself accurately.
+                payload["mode"] = os.getenv("PIPELINE_MODE", "full")
             tmp = out / f".{name}.json.tmp"
             tmp.write_text(json.dumps(payload, indent=1, default=str))
             tmp.replace(out / f"{name}.json")  # atomic swap so readers never see half a file

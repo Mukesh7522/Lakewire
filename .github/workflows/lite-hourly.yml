@@ -1,0 +1,39 @@
+name: lakewire-lite-hourly
+
+# The free, no-server pipeline: collect the new Wikipedia edits, rebuild the marts with dbt and DuckDB, and publish the
+# dashboard to GitHub Pages. State lives in two branches of this repository (`data` and `gh-pages`), each replaced by a
+# single commit per run so history never grows. See docs/DEPLOY.md, "Path C".
+on:
+  schedule:
+    - cron: "23 * * * *"   # not on the hour: GitHub delays scheduled runs when load peaks at :00
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push the data and gh-pages branches
+  pages: write      # ask GitHub Pages to rebuild after publishing
+
+# One writer at a time: the hourly and daily jobs both replace the `data` branch.
+concurrency:
+  group: lakewire-lite-data
+  cancel-in-progress: false
+
+jobs:
+  hourly:
+    # Runs unless the repository variable DEPLOY_TARGET says the system runs somewhere else ('vm' or 'local').
+    if: vars.DEPLOY_TARGET == '' || vars.DEPLOY_TARGET == 'github'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      USER_AGENT: "Lakewire/1.0 (https://github.com/${{ github.repository }})"
+      WIKIS: ${{ vars.WIKIS || 'enwiki,dewiki,frwiki,eswiki,jawiki' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lite.txt
+      - run: pip install -r requirements-lite.txt
+      - name: Collect, store, build the marts and publish
+        run: python -m lakewire.lite.run hourly

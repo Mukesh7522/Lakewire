@@ -1,0 +1,35 @@
+name: lakewire-lite-pageviews
+
+# Once a day: download yesterday's hourly pageview dumps (about 1.2 GB), keep the top pages per hour, and store them in
+# the `data` branch. The next hourly run picks them up for the trending marts. See docs/DEPLOY.md, "Path C".
+on:
+  schedule:
+    - cron: "40 3 * * *"   # the previous day's last dump file is published well before this
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lakewire-lite-data
+  cancel-in-progress: false
+
+jobs:
+  pageviews:
+    if: vars.DEPLOY_TARGET == '' || vars.DEPLOY_TARGET == 'github'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      USER_AGENT: "Lakewire/1.0 (https://github.com/${{ github.repository }})"
+      PAGEVIEW_TOP_N: ${{ vars.PAGEVIEW_TOP_N || '20000' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-lite.txt
+      - run: pip install -r requirements-lite.txt
+      - name: Load the pageview days that are missing
+        run: python -m lakewire.lite.run pageviews

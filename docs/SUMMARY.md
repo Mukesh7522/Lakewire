@@ -1,6 +1,8 @@
 # Project summary
 
-Lakewire is a streaming and batch lakehouse built on public Wikipedia data. Every edit on the ingested wikis flows from
+Lakewire is a lakehouse built on public Wikipedia data. It exists in two forms behind the same dashboard: a full streaming stack and a lighter version that runs entirely on scheduled GitHub Actions. This page describes the full stack first.
+
+In the full stack, every edit on the ingested wikis flows from
 Wikimedia's live event stream through a Kafka topic into Spark Structured Streaming, lands in Delta Lake tables
 (Bronze, then deduplicated Silver) on S3-compatible storage, and feeds hourly dbt marts that power a public dashboard.
 Daily pageview dumps are loaded by an Airflow DAG into a second Silver table and joined into a trending-articles mart.
@@ -21,6 +23,23 @@ The whole system runs from one `docker-compose.yml`.
 
 Figures from a longer run (events per day, disk growth, restarts) are not included yet: the system has only been running
 continuously for a short time. See [`incidents/`](incidents/) for the exact timelines and evidence.
+
+## The lite version
+
+The same dashboard also runs from a lighter pipeline with no servers: an hourly GitHub Actions job replays the Wikimedia
+stream from a saved position, applies the same data contract, deduplicates by event id, stores Parquet files in a git
+branch, rebuilds the dbt marts in DuckDB with all of their tests, and publishes to GitHub Pages. A daily job loads the
+pageviews.
+
+| | |
+|---|---|
+| Hourly run | about a minute in steady state; the first run replays an hour in about 100 seconds |
+| Storage | an hour of five wikis is about 0.6 MB, so the 7-day window is about 100 MB; the branch is replaced by one commit per run |
+| Pageviews | a real day (1,200,000 rows) takes about 8 minutes; the output matches the Spark job exactly (same rows, views and content fingerprint) |
+| Tests | an end-to-end test runs a fake Wikimedia stream through real git and real dbt on every push, in CI with only the lite requirements installed |
+
+Comparing the DuckDB pageview job with the Spark one on a real day found a real bug: DuckDB's `SUM` is a 128-bit integer
+that Parquet can only store as a float, so a column silently changed type. A test now pins the types.
 
 ## Things it does on purpose
 

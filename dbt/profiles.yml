@@ -24,3 +24,10 @@ lakewire:
       threads: 2
       settings:
         TimeZone: UTC
+    # The GitHub Actions pipeline: a throwaway DuckDB file rebuilt from the Parquet files on every run.
+    lite:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '/tmp/lite.duckdb') }}"
+      threads: 2
+      settings:
+        TimeZone: UTC

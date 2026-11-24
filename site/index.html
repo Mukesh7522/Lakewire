@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<meta name="description" content="Lakewire: a self-hosted Kafka, Spark and Delta Lake pipeline turning live Wikipedia activity into an interactive dashboard.">
+<meta name="description" content="Lakewire: a lakehouse pipeline that turns live Wikipedia activity into an interactive dashboard.">
 <title>Lakewire · live Wikipedia lakehouse</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1118'/%3E%3Cpath d='M4 19c4-7 7-7 10 0s6 7 10 0 3-4 4-5' fill='none' stroke='%233DDBC0' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
@@ -261,6 +261,7 @@ footer a{color:var(--mu)}
   .reveal{opacity:1;transform:none}
   .particle{display:none}
 }
+body:not([data-mode-ready]) [data-mode-text]{visibility:hidden}
 </style>
 </head>
 <body>
@@ -284,10 +285,10 @@ footer a{color:var(--mu)}
 
 <main id="top">
   <section class="hero" id="overview">
-    <div class="eyebrow">Kafka · Spark · Delta Lake · dbt · Airflow</div>
-    <h1>Wikipedia, <span>streamed live</span><br>into a lakehouse.</h1>
-    <p class="lede">Every edit on <span id="hero-wikis">five Wikipedia editions</span> flows through a self-hosted streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
-    <div class="chips"><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span><span class="tag">free-tier hosting</span></div>
+    <div class="eyebrow" id="hero-eyebrow" data-mode-text>Kafka · Spark · Delta Lake · dbt · Airflow</div>
+    <h1 data-mode-text>Wikipedia, <span id="hero-verb">streamed live</span><br>into a lakehouse.</h1>
+    <p class="lede" id="hero-lede" data-mode-text>Every edit on <span id="hero-wikis">five Wikipedia editions</span> flows through a streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.</p>
+    <div class="chips" id="hero-chips" data-mode-text><span class="tag">Wikimedia EventStreams</span><span class="tag">effectively-once</span><span class="tag">medallion architecture</span></div>
     <div class="notice demo" id="n-demo" role="note"><span><b>Demo data.</b> No published pipeline snapshot was found, so this page is showing simulated numbers to demonstrate the dashboard. Nothing below is real Wikipedia activity.</span></div>
     <div class="notice warn" id="n-stale" role="alert"><span id="n-stale-t"></span></div>
 
@@ -379,9 +380,7 @@ footer a{color:var(--mu)}
     <h2>Built to survive production habits</h2>
     <p class="lede">The interesting part is not the charts. It is the guarantees underneath them.</p>
     <div class="grid hl" id="hl"></div>
-    <div class="stats reveal">
-      <div><b>2</b><span>Airflow DAGs</span></div><div><b>4</b><span>Gold marts</span></div><div><b>3</b><span>CI/CD workflows</span></div><div><b>15</b><span>unit tests</span></div><div><b>$0</b><span>monthly cost</span></div>
-    </div>
+    <div class="stats reveal" id="stats" data-mode-text></div>
   </section>
 </main>
 
@@ -397,7 +396,7 @@ const REPO_URL = 'https://github.com/Mukesh7522/Lakewire';
 const WIKI_NAMES = {enwiki:'English',dewiki:'German',frwiki:'French',eswiki:'Spanish',jawiki:'Japanese'};
 const WIKI_COLORS = ['#3ddbc0','#ffb547','#8ab4ff','#c792ea','#ff8fa3','#8be28b','#ffd166'];
 const STALE_PIPELINE_S = 1800;     // matches the freshness banner promise
-const STALE_SNAPSHOT_S = 3 * 3600; // publish runs every 2 h
+const STALE_SNAPSHOT_S = 3 * 3600; // published hourly; allows for scheduling delays
 
 /* ====== helpers ====== */
 const $ = (s, r = document) => r.querySelector(s);
@@ -448,7 +447,7 @@ function makeDemo() {
   const iso = now.toISOString();
   return {
     demo: true,
-    health: {generated_at: iso, lag_seconds: 180, rows: [{latest_event_ts: new Date(now - 180e3).toISOString(), events_last_hour: last, events_last_24h: hrs.slice(-24).reduce((s, h) => s + tot[h], 0), events_total: hrs.reduce((s, h) => s + tot[h], 0) * 9, wikis: 5}]},
+    health: {generated_at: iso, lag_seconds: 180, mode: new URLSearchParams(location.search).get('mode') === 'lite' ? 'lite' : 'full', rows: [{latest_event_ts: new Date(now - 180e3).toISOString(), events_last_hour: last, events_last_24h: hrs.slice(-24).reduce((s, h) => s + tot[h], 0), events_total: hrs.reduce((s, h) => s + tot[h], 0) * 9, wikis: 5}]},
     trending: {generated_at: iso, rows: trending}, bot_share: {generated_at: iso, rows: bot}, conflicts: {generated_at: iso, rows: conflicts}
   };
 }
@@ -704,7 +703,9 @@ function renderConflicts() {
 }
 
 /* ====== pipeline explorer ====== */
-const N = {
+// Lakewire runs in one of two ways and the diagram, the highlights and the hero text describe the one that is real.
+// The mode comes from health.json ("full": Kafka, Spark and Airflow; "lite": scheduled GitHub Actions).
+const FULL_NODES = {
   src:   {x: 20,  y: 60,  t: 'EventStreams', s: 'Wikimedia SSE', c: '#8ab4ff', layer: 'Source', h: 'Wikimedia EventStreams',
     p: 'A public Server-Sent Events feed of every change on every wiki. Lakewire keeps only edits and page creations on the configured wikis and sends a descriptive User-Agent, as Wikimedia asks.', d: 'Be a polite client: identify yourself, filter early, never hammer the source.', st: ['SSE', 'HTTPS']},
   prod:  {x: 200, y: 60,  t: 'Producer', s: 'Python · contract', c: '#3ddbc0', layer: 'Ingest', h: 'Producer with a data contract',
@@ -716,7 +717,7 @@ const N = {
   spark: {x: 560, y: 60,  t: 'Spark Streaming', s: 'Structured · Delta', c: '#c792ea', layer: 'Process', h: 'Spark Structured Streaming',
     p: 'Reads Kafka into Bronze, then Bronze into Silver. A watermark plus dropDuplicatesWithinWatermark bounds state, and an insert-only MERGE on event_id makes any redelivery harmless. Table compaction, retention and VACUUM run in the same JVM.', d: 'One writer per Delta table. S3-compatible storage has no atomic put-if-absent, so maintenance lives inside the streaming driver.', st: ['Spark 3.5', 'Delta 3.2', 'foreachBatch MERGE']},
   bronze:{x: 740, y: 60,  t: 'Bronze', s: 'raw · 14 days', c: '#b08968', layer: 'Storage', h: 'Bronze: raw and replayable',
-    p: 'Append-only Delta. The JSON payload is stored exactly as received next to its Kafka topic, partition and offset, partitioned by ingest date.', d: 'Keep the raw truth so Silver can always be rebuilt.', st: ['Delta', 'MinIO (S3)']},
+    p: 'Append-only Delta. The JSON payload is stored exactly as received next to its Kafka topic, partition and offset, partitioned by ingest date.', d: 'Keep the raw truth so Silver can always be rebuilt.', st: ['Delta', 'SeaweedFS (S3)']},
   silver:{x: 920, y: 60,  t: 'Silver', s: 'typed · 120 days', c: '#cfd8e3', layer: 'Storage', h: 'Silver: typed and deduplicated',
     p: 'Parsed columns, partitioned by event date. CI replays the same fixture events twice and asserts that Silver does not change while Bronze and the DLQ double.', d: 'Effectively-once is proven by a test, not claimed in a README.', st: ['Delta', 'MERGE on event_id']},
   dumps: {x: 20,  y: 320, t: 'Pageview dumps', s: 'hourly .gz files', c: '#8ab4ff', layer: 'Source', h: 'Wikimedia pageview dumps',
@@ -726,34 +727,79 @@ const N = {
   pvs:   {x: 380, y: 320, t: 'Silver pageviews', s: 'by view_date', c: '#cfd8e3', layer: 'Storage', h: 'Silver pageviews',
     p: 'Delta table partitioned by view date, with the same retention and compaction treatment as the edits tables.', d: 'Airflow only ever writes this table, which keeps the single-writer rule intact.', st: ['Delta']},
   dbt:   {x: 560, y: 320, t: 'dbt + DuckDB', s: 'hourly via Airflow', c: '#ff8fa3', layer: 'Transform', h: 'dbt on DuckDB',
-    p: 'DuckDB reads the Delta tables straight from MinIO with delta_scan. Staging models feed four incremental marts. CI builds everything on parquet fixtures, twice, to exercise the incremental path and the data tests.', d: 'Marts are small enough to keep forever and cheap enough to rebuild hourly.', st: ['dbt-duckdb', 'delta_scan', 'incremental']},
+    p: 'DuckDB reads the Delta tables straight from the S3-compatible store with delta_scan. Staging models feed four incremental marts. CI builds everything on parquet fixtures, twice, to exercise the incremental path and the data tests.', d: 'Marts are small enough to keep forever and cheap enough to rebuild hourly.', st: ['dbt-duckdb', 'delta_scan', 'incremental']},
   gold:  {x: 740, y: 320, t: 'Gold marts', s: 'JSON snapshots', c: '#ffd166', layer: 'Serve', h: 'Gold marts and JSON export',
     p: 'Pipeline health, bot vs human, trending articles and edit-conflict signals. A small export writes JSON atomically (temp file, then rename) so a reader never sees half a file.', d: 'The public site never touches the lake. It only reads four tiny files.', st: ['DuckDB', 'JSON']},
   pages: {x: 920, y: 320, t: 'This dashboard', s: 'GitHub Pages', c: '#3ddbc0', layer: 'Serve', h: 'Publish to GitHub Pages',
-    p: 'A scheduled workflow pulls the snapshot over SSH, deploys it, then fails loudly if the newest event is more than 45 minutes old, so GitHub emails the owner when the pipeline has stopped.', d: 'Honest freshness: show the staleness banner and make the alarm noisy.', st: ['GitHub Actions', 'Pages']}
+    p: 'Every hour the snapshot is pushed to GitHub Pages: by a GitHub Actions workflow that pulls it from the server, or by a small script when the stack runs on a laptop. The page always shows how old the snapshot is, and the server workflow fails loudly if the newest event is more than 45 minutes old.', d: 'Honest freshness: show the staleness banner and make the alarm noisy.', st: ['GitHub Actions', 'Pages']}
 };
-const EDGES = [
+const FULL_EDGES = [
   ['src', 'prod', 'a'], ['prod', 'kafka', 'a'], ['kafka', 'spark', 'a'], ['spark', 'bronze', 'a'], ['bronze', 'silver', 'a'],
   ['dumps', 'air', 'b'], ['air', 'pvs', 'b'], ['pvs', 'dbt', 'b'], ['dbt', 'gold', 'b'], ['gold', 'pages', 'b']
 ];
-function renderPipeline() {
+const FULL_FLOWS = [['src-prod', 'particle'], ['prod-kafka', 'particle'], ['kafka-spark', 'particle'], ['spark-bronze', 'particle'], ['bronze-silver', 'particle'], ['prod-dlq', 'particle bad'], ['silver-dbt', 'particle'], ['dumps-air', 'particle am'], ['air-pvs', 'particle am'], ['pvs-dbt', 'particle am'], ['dbt-gold', 'particle'], ['gold-pages', 'particle']];
+
+const LITE_NODES = {
+  src:    {x: 20,  y: 60,  t: `EventStreams`, s: `Wikimedia SSE`, c: '#8ab4ff', layer: 'Source', h: 'Wikimedia EventStreams',
+    p: `A public Server-Sent Events feed of every change on every wiki. The collector keeps only edits and page creations on the configured wikis and sends a descriptive User-Agent, as Wikimedia asks. The feed can be replayed from a saved position for days, which is what makes a scheduled job possible.`, d: `Be a polite client: identify yourself, filter early, and let the source remember your place.`, st: ['SSE', 'HTTPS']},
+  prod:   {x: 245, y: 60,  t: `Collector`, s: `Python · contract`, c: '#3ddbc0', layer: 'Ingest', h: 'Collector with a data contract',
+    p: `Every hour a GitHub Actions job connects, replays whatever it missed from the position saved by the last run, and disconnects once it has caught up. Wikis it does not keep are dropped before parsing, and every kept event is validated against a JSON Schema.`, d: `Correctness never depends on when the job stops: the next run continues from the exact saved position.`, st: ['Python', 'jsonschema', 'GitHub Actions']},
+  dlq:    {x: 245, y: 200, t: `Dead-letter log`, s: `recent.jsonl`, c: '#ff8a80', layer: 'Ingest', h: 'Dead-letter log',
+    p: `Events that break the contract are kept with their error list and a copy of the payload (the latest 500), so schema drift is visible and countable. Additive fields pass; type changes and missing required fields do not.`, d: `A bad event never fails a run. It is recorded and skipped.`, st: ['JSONL', 'last 500']},
+  merge:  {x: 470, y: 60,  t: `Dedupe + merge`, s: `DuckDB · event_id`, c: '#c792ea', layer: 'Process', h: 'Deduplicate and merge',
+    p: `New events are merged into one Parquet file per hour of event time, and any event_id that is already stored is dropped. Merging the same events twice leaves the stored data unchanged, and a test replays the same events to prove it.`, d: `Idempotent writes make retries harmless, so a failed run can simply be run again.`, st: ['DuckDB', 'Parquet', 'zstd']},
+  silver: {x: 695, y: 60,  t: `Silver edits`, s: `Parquet · 7 days`, c: '#cfd8e3', layer: 'Storage', h: 'Silver edits: typed Parquet files',
+    p: `One file per hour, in a folder per day, with the typed columns the dbt models read. Days older than the retention window are deleted on every run. A week of five wikis is a little over 100 MB.`, d: `Keep only what the dashboard needs, so git stays a fine place to store it.`, st: ['Parquet', '7 day window']},
+  branch: {x: 920, y: 60,  t: `Data branch`, s: `git · 1 commit`, c: '#b08968', layer: 'Storage', h: 'Storage in a git branch',
+    p: `The dataset and the saved stream position live in a branch that every run replaces with a single commit, so history never grows and git uploads only the files that changed. There is no server and no database to run.`, d: `Use the platform you already have as the storage layer.`, st: ['git', 'GitHub']},
+  dumps:  {x: 20,  y: 320, t: `Pageview dumps`, s: `hourly .gz files`, c: '#8ab4ff', layer: 'Source', h: 'Wikimedia pageview dumps',
+    p: `One compressed file per hour of aggregate pageviews, published with a delay of a few hours.`, d: `The dashboard says so: trending data lags the live edit stream.`, st: ['HTTPS', 'gzip']},
+  air:    {x: 200, y: 320, t: `Pageview job`, s: `daily · DuckDB`, c: '#3ddbc0', layer: 'Batch', h: 'Daily pageview job',
+    p: `Once a day a second workflow downloads the previous day (about 1.2 GB, checked for integrity, with retries), keeps the top pages per hour, and writes one Parquet file for that day. Re-running a day gives the same rows.`, d: `Idempotent per day: a missed or repeated run cannot corrupt anything.`, st: ['GitHub Actions', 'DuckDB', 'top N per hour']},
+  pvs:    {x: 380, y: 320, t: `Silver pageviews`, s: `Parquet · 3 days`, c: '#cfd8e3', layer: 'Storage', h: 'Silver pageviews',
+    p: `One Parquet file per day, kept for three days: enough to compare an hour with the same hour yesterday.`, d: `Retention is sized to what the trending mart actually needs.`, st: ['Parquet']},
+  dbt:    {x: 560, y: 320, t: `dbt + DuckDB`, s: `hourly · rebuilt`, c: '#ff8fa3', layer: 'Transform', h: 'dbt on DuckDB',
+    p: `Every run rebuilds the marts from scratch in a throwaway DuckDB file, straight from the Parquet files, and runs all of the dbt models and data tests. If a test fails the run fails, and the site keeps its last good snapshot.`, d: `Rebuilding is cheap at this size, which removes a whole class of incremental-state bugs.`, st: ['dbt-duckdb', 'read_parquet', 'data tests']},
+  gold:   {x: 740, y: 320, t: `Gold marts`, s: `JSON snapshots`, c: '#ffd166', layer: 'Serve', h: 'Gold marts and JSON export',
+    p: `Pipeline health, bot vs human, trending articles and edit-conflict signals. A small export writes JSON atomically (temp file, then rename) so a reader never sees half a file.`, d: `The public site never touches the lake. It only reads four tiny files.`, st: ['DuckDB', 'JSON']},
+  pages:  {x: 920, y: 320, t: `This dashboard`, s: `GitHub Pages`, c: '#3ddbc0', layer: 'Serve', h: 'Publish to GitHub Pages',
+    p: `The job pushes the site and the four JSON files to the gh-pages branch and asks GitHub Pages to rebuild. The page always shows how old its snapshot is and warns when it is stale.`, d: `Honest freshness: show the banner, and let a failed run email the owner.`, st: ['GitHub Actions', 'Pages']}
+};
+const LITE_EDGES = [
+  ['src', 'prod', 'a'], ['prod', 'merge', 'a'], ['merge', 'silver', 'a'], ['silver', 'branch', 'a'],
+  ['dumps', 'air', 'b'], ['air', 'pvs', 'b'], ['pvs', 'dbt', 'b'], ['dbt', 'gold', 'b'], ['gold', 'pages', 'b']
+];
+const LITE_FLOWS = [['src-prod', 'particle'], ['prod-merge', 'particle'], ['merge-silver', 'particle'], ['silver-branch', 'particle'], ['prod-dlq', 'particle bad'], ['branch-dbt', 'particle'], ['dumps-air', 'particle am'], ['air-pvs', 'particle am'], ['pvs-dbt', 'particle am'], ['dbt-gold', 'particle'], ['gold-pages', 'particle']];
+
+const PIPES = {
+  full: {nodes: FULL_NODES, edges: FULL_EDGES, flows: FULL_FLOWS, curveFrom: 'silver', first: 'spark',
+    lanes: ['STREAMING · ALWAYS ON', 'BATCH + SERVING · SCHEDULED'],
+    opsBar: 'Prometheus · Grafana · Slack alerts · GitHub Actions CI/CD · health checks',
+    ops: {c: '#8be28b', layer: 'Operations', h: 'Observability and delivery', p: 'The producer and the streaming driver export Prometheus metrics (last event age, input rate, batch time). Grafana is provisioned from the repo and Airflow failures can post to Slack. CI lints, runs unit tests, builds dbt twice, and runs a Kafka, SeaweedFS and Spark end-to-end job on every push. Failure drills and real incidents are written up in the repository.', d: 'If you cannot see it fail, you cannot call it production.', st: ['Prometheus', 'Grafana', 'GitHub Actions', 'Docker Compose']}},
+  lite: {nodes: LITE_NODES, edges: LITE_EDGES, flows: LITE_FLOWS, curveFrom: 'branch', first: 'prod',
+    lanes: ['HOURLY · SCHEDULED ON GITHUB ACTIONS', 'DAILY + SERVING · SCHEDULED'],
+    opsBar: 'Run history · failure emails · dbt data tests every hour · CI on every push',
+    ops: {c: '#8be28b', layer: 'Operations', h: 'Observability and delivery', p: `Each run leaves a summary annotation (events read, kept and dead-lettered), a failed run emails the owner, and the hourly build runs every dbt data test. CI runs the whole pipeline on every push: a fake Wikimedia stream, real git and real dbt, with only the pipeline's own small set of dependencies installed.`, d: `If you cannot see it fail, you cannot call it production.`, st: ['GitHub Actions', 'dbt tests', 'CI']}}
+};
+function renderPipeline(mode) {
+  const P = PIPES[mode], N = P.nodes;
   const svg = $('#pipesvg'), W = 150, H = 76; let out = '';
-  out += '<text class="lane" x="20" y="30">STREAMING · ALWAYS ON</text><text class="lane" x="20" y="290">BATCH + SERVING · SCHEDULED</text>';
+  out += `<text class="lane" x="20" y="30">${esc(P.lanes[0])}</text><text class="lane" x="20" y="290">${esc(P.lanes[1])}</text>`;
   let paths = '', dots = '';
-  const P = {};
-  const add = (id, d, cls = 'fl', col = '') => { P[id] = d; paths += `<path id="p-${id}" class="pl ${cls}" d="${d}"/>`; return id; };
-  EDGES.forEach(([a, b], i) => { const A = N[a], B = N[b]; add(`${a}-${b}`, `M${A.x + W} ${A.y + H / 2} L${B.x} ${B.y + H / 2}`); });
+  const add = (id, d, cls = 'fl') => { paths += `<path id="p-${id}" class="pl ${cls}" d="${d}"/>`; return id; };
+  P.edges.forEach(([a, b]) => { const A = N[a], B = N[b]; add(`${a}-${b}`, `M${A.x + W} ${A.y + H / 2} L${B.x} ${B.y + H / 2}`); });
   add('prod-dlq', `M${N.prod.x + W / 2} ${N.prod.y + H} L${N.dlq.x + W / 2} ${N.dlq.y}`, 'fl dl');
-  add('silver-dbt', `M${N.silver.x + W / 2} ${N.silver.y + H} C${N.silver.x + W / 2} 230 ${N.dbt.x + W / 2} 230 ${N.dbt.x + W / 2} ${N.dbt.y}`);
-  const flows = [['src-prod', 'particle'], ['prod-kafka', 'particle'], ['kafka-spark', 'particle'], ['spark-bronze', 'particle'], ['bronze-silver', 'particle'], ['prod-dlq', 'particle bad'], ['silver-dbt', 'particle'], ['dumps-air', 'particle am'], ['air-pvs', 'particle am'], ['pvs-dbt', 'particle am'], ['dbt-gold', 'particle'], ['gold-pages', 'particle']];
-  flows.forEach(([id, cls], i) => { [0, 1].forEach(k => { dots += `<circle class="${cls}" r="3"><animateMotion dur="${2.4 + (i % 3) * .4}s" begin="${(i * .35 + k * 1.2).toFixed(2)}s" repeatCount="indefinite"><mpath href="#p-${id}"/></animateMotion></circle>`; }); });
+  const from = N[P.curveFrom];
+  add(`${P.curveFrom}-dbt`, `M${from.x + W / 2} ${from.y + H} C${from.x + W / 2} 230 ${N.dbt.x + W / 2} 230 ${N.dbt.x + W / 2} ${N.dbt.y}`);
+  P.flows.forEach(([id, cls], i) => { [0, 1].forEach(k => { dots += `<circle class="${cls}" r="3"><animateMotion dur="${2.4 + (i % 3) * .4}s" begin="${(i * .35 + k * 1.2).toFixed(2)}s" repeatCount="indefinite"><mpath href="#p-${id}"/></animateMotion></circle>`; }); });
   let nodes = '';
   Object.entries(N).forEach(([k, n]) => {
+    if (k === 'ops') return;
     nodes += `<g class="pn" data-k="${k}" tabindex="0" role="button" aria-label="${esc(n.h)}" style="--c:${n.c}"><rect class="bx" x="${n.x}" y="${n.y}" width="${W}" height="${H}" rx="14"/><circle cx="${n.x + 16}" cy="${n.y + 20}" r="4" fill="${n.c}"/><text x="${n.x + 28}" y="${n.y + 25}">${esc(n.t)}</text><text class="s" x="${n.x + 16}" y="${n.y + 52}">${esc(n.s)}</text></g>`;
   });
-  const ops = `<g class="pn" data-k="ops" tabindex="0" role="button" aria-label="Observability and delivery" style="--c:#8be28b"><rect class="bx" x="20" y="425" width="1050" height="38" rx="12"/><circle cx="38" cy="444" r="4" fill="#8be28b"/><text x="52" y="449">Observability &amp; delivery</text><text class="s" x="270" y="449">Prometheus · Grafana · Slack alerts · GitHub Actions CI/CD · health checks</text></g>`;
+  const ops = `<g class="pn" data-k="ops" tabindex="0" role="button" aria-label="Observability and delivery" style="--c:#8be28b"><rect class="bx" x="20" y="425" width="1050" height="38" rx="12"/><circle cx="38" cy="444" r="4" fill="#8be28b"/><text x="52" y="449">Observability &amp; delivery</text><text class="s" x="270" y="449">${esc(P.opsBar)}</text></g>`;
   svg.innerHTML = out + paths + dots + nodes + ops;
-  N.ops = {c: '#8be28b', layer: 'Operations', h: 'Observability and delivery', p: 'The producer and the streaming driver export Prometheus metrics (last event age, input rate, batch time). Grafana is provisioned from the repo, Airflow failures post to Slack, and a health script runs after every deploy. CI lints, runs unit tests, builds dbt twice, and runs a Kafka, MinIO and Spark end-to-end job; CD deploys to the VM only after CI passes on main.', d: 'If you cannot see it fail, you cannot call it production.', st: ['Prometheus', 'Grafana', 'GitHub Actions', 'Docker Compose']};
+  N.ops = P.ops;
   const select = k => {
     $$('.pn', svg).forEach(g => g.classList.toggle('sel', g.dataset.k === k));
     const n = N[k], box = $('#pd'); box.style.setProperty('--c', n.c);
@@ -763,20 +809,59 @@ function renderPipeline() {
       el('div', {className: 'dec'}, el('small', {textContent: 'Design decision'}), n.d));
   };
   $$('.pn', svg).forEach(g => { g.addEventListener('click', () => select(g.dataset.k)); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(g.dataset.k); } }); });
-  select('spark');
+  select(P.first);
 }
 
-const HL = [
-  ['Effectively-once', 'Kafka delivers at least once. A watermark dedupe and an insert-only MERGE on event_id make redelivery harmless, and CI proves it by replaying the same events twice.'],
-  ['Data contract at the edge', 'Events are validated against a JSON Schema before Kafka. Violations land in a dead-letter topic with their errors instead of breaking the stream.'],
-  ['One writer per table', 'Delta on S3-compatible storage lacks atomic put-if-absent, so compaction, retention and VACUUM run inside the streaming driver rather than a second process.'],
-  ['Idempotent backfills', 'Pageviews are verified (md5 and gzip), filtered, and written with a per-day partition overwrite. Re-running a day yields the same rows.'],
-  ['Honest freshness', 'The dashboard shows a banner when data is stale and the publish job fails loudly at 45 minutes, so silence never looks like success.'],
-  ['Tested like production', 'Lint, unit tests, dbt built twice, and a real Kafka, MinIO and Spark end-to-end job on every push, then automatic deploy with a post-deploy health check.']
-];
-function renderHighlights() {
+const HLS = {
+  full: [
+    ['Effectively-once', 'Kafka delivers at least once. A watermark dedupe and an insert-only MERGE on event_id make redelivery harmless, and CI proves it by replaying the same events twice.'],
+    ['Data contract at the edge', 'Events are validated against a JSON Schema before Kafka. Violations land in a dead-letter topic with their errors instead of breaking the stream.'],
+    ['One writer per table', 'Delta on S3-compatible storage lacks atomic put-if-absent, so compaction, retention and VACUUM run inside the streaming driver rather than a second process.'],
+    ['Idempotent backfills', 'Pageviews are checked for integrity, filtered, and written with a per-day partition overwrite. Re-running a day yields the same rows.'],
+    ['Honest freshness', 'The dashboard states how old its snapshot is and shows a banner when data is stale, so silence never looks like success.'],
+    ['Tested like production', 'Lint, unit tests, dbt built twice, and a real Kafka, SeaweedFS and Spark end-to-end job on every push. Failure drills and real incidents are written up in the repository.']
+  ],
+  lite: [
+    ['Effectively-once', `Each run resumes from the stream position saved by the last one. If a run is late, missed or repeated, events are deduplicated by id when they are stored, and tests replay the same events to prove nothing is counted twice.`],
+    ['Data contract at the edge', `Events are validated against a JSON Schema before they are stored. Violations are kept with their errors in a dead-letter log instead of breaking the run.`],
+    ['State in git, history stays small', `The Parquet files and the stream position live in a branch that is replaced by one commit per run, so the repository never grows and nothing needs a server or a database.`],
+    ['Idempotent backfills', `Pageviews are checked for integrity, filtered, and written one day at a time. Re-running a day yields the same rows.`],
+    ['Honest freshness', `The dashboard states how old its snapshot is and shows a banner when data is stale, so silence never looks like success.`],
+    ['Tested like production', `Lint, unit tests, and an end-to-end test that runs a fake Wikimedia stream through real git and real dbt on every push. The hourly build runs every dbt data test.`]
+  ]
+};
+function renderHighlights(mode) {
   const g = $('#hl'); g.replaceChildren();
-  HL.forEach(([t, p], i) => g.append(el('div', {className: 'card reveal'}, el('div', {className: 'no', textContent: String(i + 1).padStart(2, '0')}), el('h3', {textContent: t}), el('p', {textContent: p}))));
+  HLS[mode].forEach(([t, p], i) => g.append(el('div', {className: 'card reveal'}, el('div', {className: 'no', textContent: String(i + 1).padStart(2, '0')}), el('h3', {textContent: t}), el('p', {textContent: p}))));
+}
+
+/* ====== mode: hero text, stats strip, diagram, highlights ====== */
+const MODES = {
+  full: {
+    eyebrow: 'Kafka · Spark · Delta Lake · dbt · Airflow', verb: 'streamed live',
+    lede: ['Every edit on ', ' flows through a streaming pipeline with a data contract, a dead-letter queue and effectively-once guarantees, then lands in Gold marts that power this dashboard.'],
+    chips: ['Wikimedia EventStreams', 'effectively-once', 'medallion architecture', 'runs from one docker compose'],
+    stats: [['2', 'Airflow DAGs'], ['4', 'Gold marts'], ['24', 'dbt models and tests'], ['5', 'CI/CD workflows']]
+  },
+  lite: {
+    eyebrow: 'GitHub Actions · DuckDB · Parquet · dbt', verb: 'collected hourly',
+    lede: ['Every edit on ', ' is pulled from Wikimedia by a scheduled GitHub Actions job, checked against a data contract, deduplicated, stored as Parquet and rebuilt into Gold marts that power this dashboard. No server runs it.'],
+    chips: ['Wikimedia EventStreams', 'scheduled on GitHub Actions', 'no servers', 'free'],
+    stats: [['2', 'scheduled workflows'], ['4', 'Gold marts'], ['24', 'dbt models and tests'], ['$0', 'monthly cost']]
+  }
+};
+let MODE = null;
+function applyMode(mode) {
+  document.body.dataset.modeReady = '1';
+  if (mode === MODE) return;
+  MODE = mode;
+  const M = MODES[mode];
+  $('#hero-eyebrow').textContent = M.eyebrow;
+  $('#hero-verb').textContent = M.verb;
+  $('#hero-lede').replaceChildren(M.lede[0], el('span', {id: 'hero-wikis', textContent: 'several Wikipedia editions'}), M.lede[1]);
+  $('#hero-chips').replaceChildren(...M.chips.map(c => el('span', {className: 'tag', textContent: c})));
+  $('#stats').replaceChildren(...M.stats.map(([n, l]) => el('div', {}, el('b', {textContent: n}), el('span', {textContent: l}))));
+  renderPipeline(mode); renderHighlights(mode);
 }
 
 /* ====== wiring ====== */
@@ -802,14 +887,16 @@ function wire() {
 async function boot() {
   try {
     S.data = await load(); S.demo = S.data.demo;
+    applyMode(S.data.health.mode === 'lite' ? 'lite' : 'full');
     prepare(); renderKpis(); renderChips(); renderChart(); renderBreakdown(); renderHeat(); renderTrending(); renderConflicts(); reveal(); S.booted = true;
   } catch (err) {
     console.error(err);
+    applyMode(MODE || 'full');
     const p = $('#status'); p.dataset.s = 'stale'; $('#status-t').textContent = 'Could not load data';
     $('#n-stale-t').textContent = 'Could not load data: ' + err.message; $('#n-stale').classList.add('show');
   }
 }
-renderPipeline(); renderHighlights(); wire(); boot();
+wire(); boot();
 </script>
 </body>
 </html>

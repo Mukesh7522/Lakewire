@@ -21,6 +21,24 @@ docker compose logs --tail=100 producer spark-stream
 | Airflow reports the scheduler unhealthy while the pageview ingest runs | Airflow standalone uses SQLite and therefore the sequential executor, which runs each task inside the scheduler, so the daily ingest (10 to 15 minutes, longer on a slow connection) pauses scheduling and delays the hourly marts run | Expected and self-healing. If the delay matters, give Airflow a Postgres database (standalone then uses the local executor) |
 | Pageview DAG waiting | dump for that day not published yet | sensor retries every 15 minutes for 8 hours |
 
+## The lite pipeline (GitHub Actions)
+
+Every run prints a summary annotation: `read`, `filtered` (dropped without parsing), `kept_new`, `dlq`, `caught_up`,
+`timed_out`, `resumed`. Annotations show on the run page without opening the logs.
+
+| Symptom | Likely cause | Move |
+|---|---|---|
+| A run failed and GitHub emailed you | the annotation holds the error | open the run, read the annotation. `dbt build failed` lists the failing test. The data was already saved, so fixing the cause and re-running is enough |
+| Warning `possible gap` | the saved stream position expired (a very long outage) or Wikimedia changed it | nothing to fix; some edits in the gap are missing. Check that runs are not being skipped |
+| Warning `timed_out=True` | a long catch-up hit the 20 minute budget | harmless, the next run continues from where this one stopped |
+| Dashboard says the snapshot is old | scheduled runs were delayed or the workflows were disabled | Actions tab: run `lakewire-lite-hourly` by hand. GitHub disables schedules after 60 days of no repository activity |
+| Trending is empty | the pageview workflow has not run yet | run `lakewire-lite-pageviews` by hand |
+| `dlq` is climbing | upstream schema change | read `dlq/recent.jsonl` in the `data` branch, then update the contract |
+| Start again from scratch | corrupt or unwanted data | delete the `data` branch on GitHub; the next run replays three hours and rebuilds |
+
+To look at the stored data: `git clone --branch data --depth 1 https://github.com/OWNER/REPO.git lake`, then query
+`lake/silver/edits/*/*.parquet` with DuckDB.
+
 ## Measure growth in week one
 ```bash
 docker system df -v | head -30
