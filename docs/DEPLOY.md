@@ -75,7 +75,7 @@ What you need: Windows with Docker Desktop (WSL 2), about 8 GB of RAM available 
 
 Be honest with yourself about what "free" costs here: the dashboard is only as live as the computer. While it is off or asleep nothing is ingested. The producer saves its position and resumes from it, so a sleep is recovered: a real 58-minute sleep was caught up in about 30 seconds with no gap (`docs/incidents/2026-11-23-laptop-sleep.md`). A much longer outage may still leave a gap, because Wikimedia's stream history is finite. A laptop on battery with the lid closed is not a server.
 
-1. **GitHub.** Create a public repository, push this code to `main`, and set `REPO_URL` near the top of the script in `site/index.html`. In Settings, Pages, set Source to **Deploy from a branch**, branch `gh-pages`, folder `/ (root)`. Do not create the `production` environment, secrets or the `DEPLOY_TARGET` variable: those are for Path B, and without them the VM workflows skip themselves instead of failing.
+1. **GitHub.** Create a public repository, push this code to `main`, and set `REPO_URL` near the top of `site/assets/site.js`. In Settings, Pages, set Source to **Deploy from a branch**, branch `gh-pages`, folder `/ (root)`. Do not create the `production` environment, secrets or the `DEPLOY_TARGET` variable: those are for Path B, and without them the VM workflows skip themselves instead of failing.
 2. **Secrets.** `powershell -NoProfile -File scripts\init_env.ps1` creates `.env` with random passwords and two wikis. Edit `USER_AGENT` to include your contact email.
 3. **Limit Docker's memory** so it cannot starve Windows: create `%UserProfile%\.wslconfig` containing `[wsl2]` and `memory=10GB`, then run `wsl --shutdown` and restart Docker Desktop.
 4. **Start it.** `docker compose up -d --build` (the first build takes 10 to 20 minutes), then `python scripts\healthcheck.py` should print `healthy`.
@@ -124,7 +124,7 @@ Things to check yourself about Oracle, because free-tier terms change:
 
 1. Create a **public** repository named `lakewire` (public repos get free Actions minutes and free Pages).
 2. Push this code to `main`.
-3. Set `REPO_URL` near the top of the script in `site/index.html` (replace `YOUR_USER`). Until `site/data/*.json` exists the page shows clearly labelled simulated demo data; open `/?demo` to force that mode.
+3. Set `REPO_URL` near the top of `site/assets/site.js` (replace `YOUR_USER`). Until `site/data/*.json` exists the page shows clearly labelled simulated demo data; open `/?demo` to force that mode.
 4. Settings, Pages, Source: **GitHub Actions**.
 5. Settings, Environments: create `production`.
 6. Settings, Secrets and variables, Actions, **Variables**: add `DEPLOY_TARGET` with the value `vm`. The deploy and publish workflows only run when it is set.
