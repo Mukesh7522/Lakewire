@@ -1,0 +1,255 @@
+{
+ "generated_at": "2026-11-28T08:12:51.787701+00:00",
+ "rows": [
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrator intervention against vandalism",
+   "event_date": "2026-11-27",
+   "edits": 184,
+   "distinct_editors": 42,
+   "rapid_alternations": 94,
+   "bytes_swing": 52611,
+   "conflict_score": 470
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrator intervention against vandalism",
+   "event_date": "2026-11-26",
+   "edits": 164,
+   "distinct_editors": 45,
+   "rapid_alternations": 78,
+   "bytes_swing": 48050,
+   "conflict_score": 390
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrators' noticeboard/Incidents",
+   "event_date": "2026-11-27",
+   "edits": 135,
+   "distinct_editors": 64,
+   "rapid_alternations": 73,
+   "bytes_swing": 164099,
+   "conflict_score": 365
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Requests for page protection/Increase",
+   "event_date": "2026-11-27",
+   "edits": 143,
+   "distinct_editors": 45,
+   "rapid_alternations": 72,
+   "bytes_swing": 92587,
+   "conflict_score": 360
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Teahouse",
+   "event_date": "2026-11-26",
+   "edits": 113,
+   "distinct_editors": 45,
+   "rapid_alternations": 57,
+   "bytes_swing": 133518,
+   "conflict_score": 285
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Talk:Riemann hypothesis",
+   "event_date": "2026-11-27",
+   "edits": 86,
+   "distinct_editors": 18,
+   "rapid_alternations": 53,
+   "bytes_swing": 26286,
+   "conflict_score": 265
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Talk:Alp\u00f6ge's proof of the Riemann hypothesis",
+   "event_date": "2026-11-26",
+   "edits": 94,
+   "distinct_editors": 30,
+   "rapid_alternations": 50,
+   "bytes_swing": 27941,
+   "conflict_score": 250
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrator intervention against vandalism/TB2",
+   "event_date": "2026-11-26",
+   "edits": 133,
+   "distinct_editors": 6,
+   "rapid_alternations": 48,
+   "bytes_swing": 59379,
+   "conflict_score": 240
+  },
+  {
+   "wiki": "dewiki",
+   "title": "Wikipedia:Vandalismusmeldung",
+   "event_date": "2026-11-27",
+   "edits": 93,
+   "distinct_editors": 27,
+   "rapid_alternations": 47,
+   "bytes_swing": 59831,
+   "conflict_score": 235
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrator intervention against vandalism",
+   "event_date": "2026-11-28",
+   "edits": 71,
+   "distinct_editors": 20,
+   "rapid_alternations": 47,
+   "bytes_swing": 23032,
+   "conflict_score": 235
+  },
+  {
+   "wiki": "dewiki",
+   "title": "Wikipedia:Vandalismusmeldung",
+   "event_date": "2026-11-26",
+   "edits": 84,
+   "distinct_editors": 25,
+   "rapid_alternations": 45,
+   "bytes_swing": 54069,
+   "conflict_score": 225
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Bronson Reed",
+   "event_date": "2026-11-28",
+   "edits": 73,
+   "distinct_editors": 25,
+   "rapid_alternations": 42,
+   "bytes_swing": 20548,
+   "conflict_score": 210
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Talk:Liberal Democratic Party (Japan)",
+   "event_date": "2026-11-27",
+   "edits": 72,
+   "distinct_editors": 11,
+   "rapid_alternations": 41,
+   "bytes_swing": 56601,
+   "conflict_score": 205
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Dave Ramsey",
+   "event_date": "2026-11-26",
+   "edits": 49,
+   "distinct_editors": 10,
+   "rapid_alternations": 41,
+   "bytes_swing": 57844,
+   "conflict_score": 205
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Talk:Riemann hypothesis",
+   "event_date": "2026-11-26",
+   "edits": 84,
+   "distinct_editors": 17,
+   "rapid_alternations": 40,
+   "bytes_swing": 33200,
+   "conflict_score": 200
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Administrator intervention against vandalism/TB2",
+   "event_date": "2026-11-27",
+   "edits": 98,
+   "distinct_editors": 6,
+   "rapid_alternations": 40,
+   "bytes_swing": 42912,
+   "conflict_score": 200
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Usernames for administrator attention",
+   "event_date": "2026-11-27",
+   "edits": 144,
+   "distinct_editors": 30,
+   "rapid_alternations": 39,
+   "bytes_swing": 36895,
+   "conflict_score": 195
+  },
+  {
+   "wiki": "enwiki",
+   "title": "2026 FIFA U-17 World Cup",
+   "event_date": "2026-11-27",
+   "edits": 109,
+   "distinct_editors": 21,
+   "rapid_alternations": 38,
+   "bytes_swing": 25827,
+   "conflict_score": 190
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Teahouse",
+   "event_date": "2026-11-27",
+   "edits": 70,
+   "distinct_editors": 29,
+   "rapid_alternations": 35,
+   "bytes_swing": 74948,
+   "conflict_score": 175
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Zyri",
+   "event_date": "2026-11-26",
+   "edits": 68,
+   "distinct_editors": 40,
+   "rapid_alternations": 35,
+   "bytes_swing": 9324,
+   "conflict_score": 175
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:In the news/Candidates",
+   "event_date": "2026-11-26",
+   "edits": 89,
+   "distinct_editors": 37,
+   "rapid_alternations": 33,
+   "bytes_swing": 69917,
+   "conflict_score": 165
+  },
+  {
+   "wiki": "enwiki",
+   "title": "2026 New Zealand general election",
+   "event_date": "2026-11-27",
+   "edits": 55,
+   "distinct_editors": 27,
+   "rapid_alternations": 31,
+   "bytes_swing": 13300,
+   "conflict_score": 155
+  },
+  {
+   "wiki": "frwiki",
+   "title": "Wikip\u00e9dia:Forum de relecture",
+   "event_date": "2026-11-26",
+   "edits": 81,
+   "distinct_editors": 28,
+   "rapid_alternations": 30,
+   "bytes_swing": 67007,
+   "conflict_score": 150
+  },
+  {
+   "wiki": "frwiki",
+   "title": "Wikip\u00e9dia:Forum de relecture",
+   "event_date": "2026-11-27",
+   "edits": 87,
+   "distinct_editors": 34,
+   "rapid_alternations": 29,
+   "bytes_swing": 85433,
+   "conflict_score": 145
+  },
+  {
+   "wiki": "enwiki",
+   "title": "Wikipedia:Requests for page protection/Increase",
+   "event_date": "2026-11-26",
+   "edits": 102,
+   "distinct_editors": 37,
+   "rapid_alternations": 28,
+   "bytes_swing": 55938,
+   "conflict_score": 140
+  }
+ ]
+}

@@ -1,0 +1,2925 @@
+{
+ "generated_at": "2026-11-28T08:12:51.787701+00:00",
+ "rows": [
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T08:00:00Z",
+   "edits_total": 1366,
+   "bot_edits": 193,
+   "human_edits": 1173,
+   "bot_share": 0.1413
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T08:00:00Z",
+   "edits_total": 10437,
+   "bot_edits": 6105,
+   "human_edits": 4332,
+   "bot_share": 0.5849
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T08:00:00Z",
+   "edits_total": 617,
+   "bot_edits": 147,
+   "human_edits": 470,
+   "bot_share": 0.2382
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T08:00:00Z",
+   "edits_total": 1809,
+   "bot_edits": 471,
+   "human_edits": 1338,
+   "bot_share": 0.2604
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T08:00:00Z",
+   "edits_total": 582,
+   "bot_edits": 139,
+   "human_edits": 443,
+   "bot_share": 0.2388
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T09:00:00Z",
+   "edits_total": 1379,
+   "bot_edits": 188,
+   "human_edits": 1191,
+   "bot_share": 0.1363
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T09:00:00Z",
+   "edits_total": 7948,
+   "bot_edits": 3886,
+   "human_edits": 4062,
+   "bot_share": 0.4889
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T09:00:00Z",
+   "edits_total": 465,
+   "bot_edits": 101,
+   "human_edits": 364,
+   "bot_share": 0.2172
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T09:00:00Z",
+   "edits_total": 2261,
+   "bot_edits": 276,
+   "human_edits": 1985,
+   "bot_share": 0.1221
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T09:00:00Z",
+   "edits_total": 746,
+   "bot_edits": 238,
+   "human_edits": 508,
+   "bot_share": 0.319
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T10:00:00Z",
+   "edits_total": 1484,
+   "bot_edits": 194,
+   "human_edits": 1290,
+   "bot_share": 0.1307
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T10:00:00Z",
+   "edits_total": 8067,
+   "bot_edits": 3917,
+   "human_edits": 4150,
+   "bot_share": 0.4856
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T10:00:00Z",
+   "edits_total": 438,
+   "bot_edits": 103,
+   "human_edits": 335,
+   "bot_share": 0.2352
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T10:00:00Z",
+   "edits_total": 1972,
+   "bot_edits": 405,
+   "human_edits": 1567,
+   "bot_share": 0.2054
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T10:00:00Z",
+   "edits_total": 660,
+   "bot_edits": 133,
+   "human_edits": 527,
+   "bot_share": 0.2015
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T11:00:00Z",
+   "edits_total": 1091,
+   "bot_edits": 105,
+   "human_edits": 986,
+   "bot_share": 0.0962
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T11:00:00Z",
+   "edits_total": 6018,
+   "bot_edits": 2214,
+   "human_edits": 3804,
+   "bot_share": 0.3679
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T11:00:00Z",
+   "edits_total": 471,
+   "bot_edits": 103,
+   "human_edits": 368,
+   "bot_share": 0.2187
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T11:00:00Z",
+   "edits_total": 1262,
+   "bot_edits": 261,
+   "human_edits": 1001,
+   "bot_share": 0.2068
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T11:00:00Z",
+   "edits_total": 650,
+   "bot_edits": 121,
+   "human_edits": 529,
+   "bot_share": 0.1862
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T12:00:00Z",
+   "edits_total": 1272,
+   "bot_edits": 97,
+   "human_edits": 1175,
+   "bot_share": 0.0763
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T12:00:00Z",
+   "edits_total": 8059,
+   "bot_edits": 3781,
+   "human_edits": 4278,
+   "bot_share": 0.4692
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T12:00:00Z",
+   "edits_total": 729,
+   "bot_edits": 101,
+   "human_edits": 628,
+   "bot_share": 0.1385
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T12:00:00Z",
+   "edits_total": 1241,
+   "bot_edits": 291,
+   "human_edits": 950,
+   "bot_share": 0.2345
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T12:00:00Z",
+   "edits_total": 677,
+   "bot_edits": 43,
+   "human_edits": 634,
+   "bot_share": 0.0635
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T13:00:00Z",
+   "edits_total": 1425,
+   "bot_edits": 54,
+   "human_edits": 1371,
+   "bot_share": 0.0379
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T13:00:00Z",
+   "edits_total": 7048,
+   "bot_edits": 2674,
+   "human_edits": 4374,
+   "bot_share": 0.3794
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T13:00:00Z",
+   "edits_total": 604,
+   "bot_edits": 67,
+   "human_edits": 537,
+   "bot_share": 0.1109
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T13:00:00Z",
+   "edits_total": 1447,
+   "bot_edits": 315,
+   "human_edits": 1132,
+   "bot_share": 0.2177
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T13:00:00Z",
+   "edits_total": 703,
+   "bot_edits": 104,
+   "human_edits": 599,
+   "bot_share": 0.1479
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T14:00:00Z",
+   "edits_total": 1041,
+   "bot_edits": 49,
+   "human_edits": 992,
+   "bot_share": 0.0471
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T14:00:00Z",
+   "edits_total": 9315,
+   "bot_edits": 4560,
+   "human_edits": 4755,
+   "bot_share": 0.4895
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T14:00:00Z",
+   "edits_total": 689,
+   "bot_edits": 141,
+   "human_edits": 548,
+   "bot_share": 0.2046
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T14:00:00Z",
+   "edits_total": 1837,
+   "bot_edits": 292,
+   "human_edits": 1545,
+   "bot_share": 0.159
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T14:00:00Z",
+   "edits_total": 658,
+   "bot_edits": 138,
+   "human_edits": 520,
+   "bot_share": 0.2097
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T15:00:00Z",
+   "edits_total": 1343,
+   "bot_edits": 108,
+   "human_edits": 1235,
+   "bot_share": 0.0804
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T15:00:00Z",
+   "edits_total": 9324,
+   "bot_edits": 3550,
+   "human_edits": 5774,
+   "bot_share": 0.3807
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T15:00:00Z",
+   "edits_total": 684,
+   "bot_edits": 66,
+   "human_edits": 618,
+   "bot_share": 0.0965
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T15:00:00Z",
+   "edits_total": 1959,
+   "bot_edits": 295,
+   "human_edits": 1664,
+   "bot_share": 0.1506
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T15:00:00Z",
+   "edits_total": 720,
+   "bot_edits": 95,
+   "human_edits": 625,
+   "bot_share": 0.1319
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T16:00:00Z",
+   "edits_total": 1105,
+   "bot_edits": 84,
+   "human_edits": 1021,
+   "bot_share": 0.076
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T16:00:00Z",
+   "edits_total": 9942,
+   "bot_edits": 3570,
+   "human_edits": 6372,
+   "bot_share": 0.3591
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T16:00:00Z",
+   "edits_total": 700,
+   "bot_edits": 152,
+   "human_edits": 548,
+   "bot_share": 0.2171
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T16:00:00Z",
+   "edits_total": 1625,
+   "bot_edits": 343,
+   "human_edits": 1282,
+   "bot_share": 0.2111
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T16:00:00Z",
+   "edits_total": 758,
+   "bot_edits": 94,
+   "human_edits": 664,
+   "bot_share": 0.124
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T17:00:00Z",
+   "edits_total": 1128,
+   "bot_edits": 74,
+   "human_edits": 1054,
+   "bot_share": 0.0656
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T17:00:00Z",
+   "edits_total": 10926,
+   "bot_edits": 5150,
+   "human_edits": 5776,
+   "bot_share": 0.4714
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T17:00:00Z",
+   "edits_total": 753,
+   "bot_edits": 149,
+   "human_edits": 604,
+   "bot_share": 0.1979
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T17:00:00Z",
+   "edits_total": 1538,
+   "bot_edits": 355,
+   "human_edits": 1183,
+   "bot_share": 0.2308
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T17:00:00Z",
+   "edits_total": 466,
+   "bot_edits": 123,
+   "human_edits": 343,
+   "bot_share": 0.2639
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T18:00:00Z",
+   "edits_total": 1196,
+   "bot_edits": 120,
+   "human_edits": 1076,
+   "bot_share": 0.1003
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T18:00:00Z",
+   "edits_total": 11552,
+   "bot_edits": 6056,
+   "human_edits": 5496,
+   "bot_share": 0.5242
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T18:00:00Z",
+   "edits_total": 629,
+   "bot_edits": 69,
+   "human_edits": 560,
+   "bot_share": 0.1097
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T18:00:00Z",
+   "edits_total": 1251,
+   "bot_edits": 298,
+   "human_edits": 953,
+   "bot_share": 0.2382
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T18:00:00Z",
+   "edits_total": 241,
+   "bot_edits": 133,
+   "human_edits": 108,
+   "bot_share": 0.5519
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T19:00:00Z",
+   "edits_total": 1077,
+   "bot_edits": 31,
+   "human_edits": 1046,
+   "bot_share": 0.0288
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T19:00:00Z",
+   "edits_total": 14192,
+   "bot_edits": 8119,
+   "human_edits": 6073,
+   "bot_share": 0.5721
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T19:00:00Z",
+   "edits_total": 702,
+   "bot_edits": 58,
+   "human_edits": 644,
+   "bot_share": 0.0826
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T19:00:00Z",
+   "edits_total": 1160,
+   "bot_edits": 248,
+   "human_edits": 912,
+   "bot_share": 0.2138
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T19:00:00Z",
+   "edits_total": 199,
+   "bot_edits": 107,
+   "human_edits": 92,
+   "bot_share": 0.5377
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T20:00:00Z",
+   "edits_total": 1183,
+   "bot_edits": 76,
+   "human_edits": 1107,
+   "bot_share": 0.0642
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T20:00:00Z",
+   "edits_total": 12770,
+   "bot_edits": 6611,
+   "human_edits": 6159,
+   "bot_share": 0.5177
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T20:00:00Z",
+   "edits_total": 669,
+   "bot_edits": 151,
+   "human_edits": 518,
+   "bot_share": 0.2257
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T20:00:00Z",
+   "edits_total": 1261,
+   "bot_edits": 335,
+   "human_edits": 926,
+   "bot_share": 0.2657
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T20:00:00Z",
+   "edits_total": 304,
+   "bot_edits": 129,
+   "human_edits": 175,
+   "bot_share": 0.4243
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T21:00:00Z",
+   "edits_total": 920,
+   "bot_edits": 105,
+   "human_edits": 815,
+   "bot_share": 0.1141
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T21:00:00Z",
+   "edits_total": 13507,
+   "bot_edits": 7551,
+   "human_edits": 5956,
+   "bot_share": 0.559
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T21:00:00Z",
+   "edits_total": 1034,
+   "bot_edits": 344,
+   "human_edits": 690,
+   "bot_share": 0.3327
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T21:00:00Z",
+   "edits_total": 1297,
+   "bot_edits": 299,
+   "human_edits": 998,
+   "bot_share": 0.2305
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T21:00:00Z",
+   "edits_total": 280,
+   "bot_edits": 84,
+   "human_edits": 196,
+   "bot_share": 0.3
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T22:00:00Z",
+   "edits_total": 827,
+   "bot_edits": 107,
+   "human_edits": 720,
+   "bot_share": 0.1294
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T22:00:00Z",
+   "edits_total": 12048,
+   "bot_edits": 6206,
+   "human_edits": 5842,
+   "bot_share": 0.5151
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T22:00:00Z",
+   "edits_total": 811,
+   "bot_edits": 119,
+   "human_edits": 692,
+   "bot_share": 0.1467
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T22:00:00Z",
+   "edits_total": 1435,
+   "bot_edits": 487,
+   "human_edits": 948,
+   "bot_share": 0.3394
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T22:00:00Z",
+   "edits_total": 318,
+   "bot_edits": 97,
+   "human_edits": 221,
+   "bot_share": 0.305
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-25T23:00:00Z",
+   "edits_total": 1132,
+   "bot_edits": 659,
+   "human_edits": 473,
+   "bot_share": 0.5822
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-25T23:00:00Z",
+   "edits_total": 10118,
+   "bot_edits": 4956,
+   "human_edits": 5162,
+   "bot_share": 0.4898
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-25T23:00:00Z",
+   "edits_total": 832,
+   "bot_edits": 162,
+   "human_edits": 670,
+   "bot_share": 0.1947
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-25T23:00:00Z",
+   "edits_total": 939,
+   "bot_edits": 540,
+   "human_edits": 399,
+   "bot_share": 0.5751
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-25T23:00:00Z",
+   "edits_total": 450,
+   "bot_edits": 115,
+   "human_edits": 335,
+   "bot_share": 0.2556
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T00:00:00Z",
+   "edits_total": 827,
+   "bot_edits": 573,
+   "human_edits": 254,
+   "bot_share": 0.6929
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T00:00:00Z",
+   "edits_total": 9389,
+   "bot_edits": 4749,
+   "human_edits": 4640,
+   "bot_share": 0.5058
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T00:00:00Z",
+   "edits_total": 736,
+   "bot_edits": 133,
+   "human_edits": 603,
+   "bot_share": 0.1807
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T00:00:00Z",
+   "edits_total": 885,
+   "bot_edits": 531,
+   "human_edits": 354,
+   "bot_share": 0.6
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T00:00:00Z",
+   "edits_total": 349,
+   "bot_edits": 62,
+   "human_edits": 287,
+   "bot_share": 0.1777
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T01:00:00Z",
+   "edits_total": 844,
+   "bot_edits": 577,
+   "human_edits": 267,
+   "bot_share": 0.6836
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T01:00:00Z",
+   "edits_total": 10300,
+   "bot_edits": 5739,
+   "human_edits": 4561,
+   "bot_share": 0.5572
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T01:00:00Z",
+   "edits_total": 688,
+   "bot_edits": 88,
+   "human_edits": 600,
+   "bot_share": 0.1279
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T01:00:00Z",
+   "edits_total": 866,
+   "bot_edits": 526,
+   "human_edits": 340,
+   "bot_share": 0.6074
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T01:00:00Z",
+   "edits_total": 444,
+   "bot_edits": 86,
+   "human_edits": 358,
+   "bot_share": 0.1937
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T02:00:00Z",
+   "edits_total": 809,
+   "bot_edits": 616,
+   "human_edits": 193,
+   "bot_share": 0.7614
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T02:00:00Z",
+   "edits_total": 11461,
+   "bot_edits": 5308,
+   "human_edits": 6153,
+   "bot_share": 0.4631
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T02:00:00Z",
+   "edits_total": 573,
+   "bot_edits": 87,
+   "human_edits": 486,
+   "bot_share": 0.1518
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T02:00:00Z",
+   "edits_total": 807,
+   "bot_edits": 598,
+   "human_edits": 209,
+   "bot_share": 0.741
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T02:00:00Z",
+   "edits_total": 465,
+   "bot_edits": 55,
+   "human_edits": 410,
+   "bot_share": 0.1183
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T03:00:00Z",
+   "edits_total": 1059,
+   "bot_edits": 946,
+   "human_edits": 113,
+   "bot_share": 0.8933
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T03:00:00Z",
+   "edits_total": 9107,
+   "bot_edits": 4534,
+   "human_edits": 4573,
+   "bot_share": 0.4979
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T03:00:00Z",
+   "edits_total": 626,
+   "bot_edits": 151,
+   "human_edits": 475,
+   "bot_share": 0.2412
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T03:00:00Z",
+   "edits_total": 371,
+   "bot_edits": 226,
+   "human_edits": 145,
+   "bot_share": 0.6092
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T03:00:00Z",
+   "edits_total": 508,
+   "bot_edits": 31,
+   "human_edits": 477,
+   "bot_share": 0.061
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T04:00:00Z",
+   "edits_total": 1095,
+   "bot_edits": 907,
+   "human_edits": 188,
+   "bot_share": 0.8283
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T04:00:00Z",
+   "edits_total": 11544,
+   "bot_edits": 5516,
+   "human_edits": 6028,
+   "bot_share": 0.4778
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T04:00:00Z",
+   "edits_total": 592,
+   "bot_edits": 122,
+   "human_edits": 470,
+   "bot_share": 0.2061
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T04:00:00Z",
+   "edits_total": 434,
+   "bot_edits": 298,
+   "human_edits": 136,
+   "bot_share": 0.6866
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T04:00:00Z",
+   "edits_total": 483,
+   "bot_edits": 64,
+   "human_edits": 419,
+   "bot_share": 0.1325
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T05:00:00Z",
+   "edits_total": 632,
+   "bot_edits": 285,
+   "human_edits": 347,
+   "bot_share": 0.4509
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T05:00:00Z",
+   "edits_total": 12506,
+   "bot_edits": 7165,
+   "human_edits": 5341,
+   "bot_share": 0.5729
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T05:00:00Z",
+   "edits_total": 421,
+   "bot_edits": 102,
+   "human_edits": 319,
+   "bot_share": 0.2423
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T05:00:00Z",
+   "edits_total": 700,
+   "bot_edits": 406,
+   "human_edits": 294,
+   "bot_share": 0.58
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T05:00:00Z",
+   "edits_total": 485,
+   "bot_edits": 96,
+   "human_edits": 389,
+   "bot_share": 0.1979
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T06:00:00Z",
+   "edits_total": 778,
+   "bot_edits": 225,
+   "human_edits": 553,
+   "bot_share": 0.2892
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T06:00:00Z",
+   "edits_total": 11505,
+   "bot_edits": 5516,
+   "human_edits": 5989,
+   "bot_share": 0.4794
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T06:00:00Z",
+   "edits_total": 463,
+   "bot_edits": 104,
+   "human_edits": 359,
+   "bot_share": 0.2246
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T06:00:00Z",
+   "edits_total": 562,
+   "bot_edits": 236,
+   "human_edits": 326,
+   "bot_share": 0.4199
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T06:00:00Z",
+   "edits_total": 589,
+   "bot_edits": 114,
+   "human_edits": 475,
+   "bot_share": 0.1935
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T07:00:00Z",
+   "edits_total": 1240,
+   "bot_edits": 400,
+   "human_edits": 840,
+   "bot_share": 0.3226
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T07:00:00Z",
+   "edits_total": 12355,
+   "bot_edits": 6146,
+   "human_edits": 6209,
+   "bot_share": 0.4975
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T07:00:00Z",
+   "edits_total": 398,
+   "bot_edits": 148,
+   "human_edits": 250,
+   "bot_share": 0.3719
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T07:00:00Z",
+   "edits_total": 727,
+   "bot_edits": 215,
+   "human_edits": 512,
+   "bot_share": 0.2957
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T07:00:00Z",
+   "edits_total": 431,
+   "bot_edits": 78,
+   "human_edits": 353,
+   "bot_share": 0.181
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T08:00:00Z",
+   "edits_total": 1020,
+   "bot_edits": 175,
+   "human_edits": 845,
+   "bot_share": 0.1716
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T08:00:00Z",
+   "edits_total": 11608,
+   "bot_edits": 6576,
+   "human_edits": 5032,
+   "bot_share": 0.5665
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T08:00:00Z",
+   "edits_total": 504,
+   "bot_edits": 100,
+   "human_edits": 404,
+   "bot_share": 0.1984
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T08:00:00Z",
+   "edits_total": 1361,
+   "bot_edits": 414,
+   "human_edits": 947,
+   "bot_share": 0.3042
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T08:00:00Z",
+   "edits_total": 544,
+   "bot_edits": 32,
+   "human_edits": 512,
+   "bot_share": 0.0588
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T09:00:00Z",
+   "edits_total": 1020,
+   "bot_edits": 139,
+   "human_edits": 881,
+   "bot_share": 0.1363
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T09:00:00Z",
+   "edits_total": 8171,
+   "bot_edits": 4649,
+   "human_edits": 3522,
+   "bot_share": 0.569
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T09:00:00Z",
+   "edits_total": 443,
+   "bot_edits": 64,
+   "human_edits": 379,
+   "bot_share": 0.1445
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T09:00:00Z",
+   "edits_total": 1439,
+   "bot_edits": 261,
+   "human_edits": 1178,
+   "bot_share": 0.1814
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T09:00:00Z",
+   "edits_total": 570,
+   "bot_edits": 8,
+   "human_edits": 562,
+   "bot_share": 0.014
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T10:00:00Z",
+   "edits_total": 1202,
+   "bot_edits": 189,
+   "human_edits": 1013,
+   "bot_share": 0.1572
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T10:00:00Z",
+   "edits_total": 11359,
+   "bot_edits": 7021,
+   "human_edits": 4338,
+   "bot_share": 0.6181
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T10:00:00Z",
+   "edits_total": 509,
+   "bot_edits": 119,
+   "human_edits": 390,
+   "bot_share": 0.2338
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T10:00:00Z",
+   "edits_total": 1479,
+   "bot_edits": 451,
+   "human_edits": 1028,
+   "bot_share": 0.3049
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T10:00:00Z",
+   "edits_total": 596,
+   "bot_edits": 16,
+   "human_edits": 580,
+   "bot_share": 0.0268
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T11:00:00Z",
+   "edits_total": 1290,
+   "bot_edits": 109,
+   "human_edits": 1181,
+   "bot_share": 0.0845
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T11:00:00Z",
+   "edits_total": 14829,
+   "bot_edits": 7647,
+   "human_edits": 7182,
+   "bot_share": 0.5157
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T11:00:00Z",
+   "edits_total": 563,
+   "bot_edits": 106,
+   "human_edits": 457,
+   "bot_share": 0.1883
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T11:00:00Z",
+   "edits_total": 1128,
+   "bot_edits": 216,
+   "human_edits": 912,
+   "bot_share": 0.1915
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T11:00:00Z",
+   "edits_total": 542,
+   "bot_edits": 4,
+   "human_edits": 538,
+   "bot_share": 0.0074
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T12:00:00Z",
+   "edits_total": 1163,
+   "bot_edits": 181,
+   "human_edits": 982,
+   "bot_share": 0.1556
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T12:00:00Z",
+   "edits_total": 14508,
+   "bot_edits": 5966,
+   "human_edits": 8542,
+   "bot_share": 0.4112
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T12:00:00Z",
+   "edits_total": 602,
+   "bot_edits": 125,
+   "human_edits": 477,
+   "bot_share": 0.2076
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T12:00:00Z",
+   "edits_total": 1111,
+   "bot_edits": 220,
+   "human_edits": 891,
+   "bot_share": 0.198
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T12:00:00Z",
+   "edits_total": 535,
+   "bot_edits": 70,
+   "human_edits": 465,
+   "bot_share": 0.1308
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T13:00:00Z",
+   "edits_total": 1281,
+   "bot_edits": 162,
+   "human_edits": 1119,
+   "bot_share": 0.1265
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T13:00:00Z",
+   "edits_total": 15746,
+   "bot_edits": 6144,
+   "human_edits": 9602,
+   "bot_share": 0.3902
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T13:00:00Z",
+   "edits_total": 555,
+   "bot_edits": 105,
+   "human_edits": 450,
+   "bot_share": 0.1892
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T13:00:00Z",
+   "edits_total": 1073,
+   "bot_edits": 204,
+   "human_edits": 869,
+   "bot_share": 0.1901
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T13:00:00Z",
+   "edits_total": 613,
+   "bot_edits": 56,
+   "human_edits": 557,
+   "bot_share": 0.0914
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T14:00:00Z",
+   "edits_total": 1607,
+   "bot_edits": 463,
+   "human_edits": 1144,
+   "bot_share": 0.2881
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T14:00:00Z",
+   "edits_total": 12094,
+   "bot_edits": 6088,
+   "human_edits": 6006,
+   "bot_share": 0.5034
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T14:00:00Z",
+   "edits_total": 669,
+   "bot_edits": 120,
+   "human_edits": 549,
+   "bot_share": 0.1794
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T14:00:00Z",
+   "edits_total": 1324,
+   "bot_edits": 226,
+   "human_edits": 1098,
+   "bot_share": 0.1707
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T14:00:00Z",
+   "edits_total": 705,
+   "bot_edits": 88,
+   "human_edits": 617,
+   "bot_share": 0.1248
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T15:00:00Z",
+   "edits_total": 1149,
+   "bot_edits": 154,
+   "human_edits": 995,
+   "bot_share": 0.134
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T15:00:00Z",
+   "edits_total": 9329,
+   "bot_edits": 4398,
+   "human_edits": 4931,
+   "bot_share": 0.4714
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T15:00:00Z",
+   "edits_total": 793,
+   "bot_edits": 145,
+   "human_edits": 648,
+   "bot_share": 0.1828
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T15:00:00Z",
+   "edits_total": 1451,
+   "bot_edits": 283,
+   "human_edits": 1168,
+   "bot_share": 0.195
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T15:00:00Z",
+   "edits_total": 576,
+   "bot_edits": 75,
+   "human_edits": 501,
+   "bot_share": 0.1302
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T16:00:00Z",
+   "edits_total": 1620,
+   "bot_edits": 405,
+   "human_edits": 1215,
+   "bot_share": 0.25
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T16:00:00Z",
+   "edits_total": 9323,
+   "bot_edits": 3815,
+   "human_edits": 5508,
+   "bot_share": 0.4092
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T16:00:00Z",
+   "edits_total": 688,
+   "bot_edits": 124,
+   "human_edits": 564,
+   "bot_share": 0.1802
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T16:00:00Z",
+   "edits_total": 1325,
+   "bot_edits": 310,
+   "human_edits": 1015,
+   "bot_share": 0.234
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T16:00:00Z",
+   "edits_total": 418,
+   "bot_edits": 60,
+   "human_edits": 358,
+   "bot_share": 0.1435
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T17:00:00Z",
+   "edits_total": 1288,
+   "bot_edits": 121,
+   "human_edits": 1167,
+   "bot_share": 0.0939
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T17:00:00Z",
+   "edits_total": 10642,
+   "bot_edits": 4816,
+   "human_edits": 5826,
+   "bot_share": 0.4525
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T17:00:00Z",
+   "edits_total": 720,
+   "bot_edits": 82,
+   "human_edits": 638,
+   "bot_share": 0.1139
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T17:00:00Z",
+   "edits_total": 1246,
+   "bot_edits": 279,
+   "human_edits": 967,
+   "bot_share": 0.2239
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T17:00:00Z",
+   "edits_total": 437,
+   "bot_edits": 74,
+   "human_edits": 363,
+   "bot_share": 0.1693
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T18:00:00Z",
+   "edits_total": 1022,
+   "bot_edits": 163,
+   "human_edits": 859,
+   "bot_share": 0.1595
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T18:00:00Z",
+   "edits_total": 11512,
+   "bot_edits": 5458,
+   "human_edits": 6054,
+   "bot_share": 0.4741
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T18:00:00Z",
+   "edits_total": 809,
+   "bot_edits": 96,
+   "human_edits": 713,
+   "bot_share": 0.1187
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T18:00:00Z",
+   "edits_total": 1210,
+   "bot_edits": 235,
+   "human_edits": 975,
+   "bot_share": 0.1942
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T18:00:00Z",
+   "edits_total": 317,
+   "bot_edits": 102,
+   "human_edits": 215,
+   "bot_share": 0.3218
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T19:00:00Z",
+   "edits_total": 953,
+   "bot_edits": 102,
+   "human_edits": 851,
+   "bot_share": 0.107
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T19:00:00Z",
+   "edits_total": 12499,
+   "bot_edits": 5334,
+   "human_edits": 7165,
+   "bot_share": 0.4268
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T19:00:00Z",
+   "edits_total": 748,
+   "bot_edits": 98,
+   "human_edits": 650,
+   "bot_share": 0.131
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T19:00:00Z",
+   "edits_total": 1129,
+   "bot_edits": 231,
+   "human_edits": 898,
+   "bot_share": 0.2046
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T19:00:00Z",
+   "edits_total": 247,
+   "bot_edits": 102,
+   "human_edits": 145,
+   "bot_share": 0.413
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T20:00:00Z",
+   "edits_total": 1063,
+   "bot_edits": 82,
+   "human_edits": 981,
+   "bot_share": 0.0771
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T20:00:00Z",
+   "edits_total": 13236,
+   "bot_edits": 5665,
+   "human_edits": 7571,
+   "bot_share": 0.428
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T20:00:00Z",
+   "edits_total": 746,
+   "bot_edits": 78,
+   "human_edits": 668,
+   "bot_share": 0.1046
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T20:00:00Z",
+   "edits_total": 1161,
+   "bot_edits": 259,
+   "human_edits": 902,
+   "bot_share": 0.2231
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T20:00:00Z",
+   "edits_total": 299,
+   "bot_edits": 149,
+   "human_edits": 150,
+   "bot_share": 0.4983
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T21:00:00Z",
+   "edits_total": 1276,
+   "bot_edits": 83,
+   "human_edits": 1193,
+   "bot_share": 0.065
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T21:00:00Z",
+   "edits_total": 11995,
+   "bot_edits": 4561,
+   "human_edits": 7434,
+   "bot_share": 0.3802
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T21:00:00Z",
+   "edits_total": 568,
+   "bot_edits": 88,
+   "human_edits": 480,
+   "bot_share": 0.1549
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T21:00:00Z",
+   "edits_total": 1487,
+   "bot_edits": 324,
+   "human_edits": 1163,
+   "bot_share": 0.2179
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T21:00:00Z",
+   "edits_total": 287,
+   "bot_edits": 90,
+   "human_edits": 197,
+   "bot_share": 0.3136
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T22:00:00Z",
+   "edits_total": 1006,
+   "bot_edits": 82,
+   "human_edits": 924,
+   "bot_share": 0.0815
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T22:00:00Z",
+   "edits_total": 11731,
+   "bot_edits": 3592,
+   "human_edits": 8139,
+   "bot_share": 0.3062
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T22:00:00Z",
+   "edits_total": 576,
+   "bot_edits": 93,
+   "human_edits": 483,
+   "bot_share": 0.1615
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T22:00:00Z",
+   "edits_total": 1629,
+   "bot_edits": 620,
+   "human_edits": 1009,
+   "bot_share": 0.3806
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T22:00:00Z",
+   "edits_total": 319,
+   "bot_edits": 58,
+   "human_edits": 261,
+   "bot_share": 0.1818
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-26T23:00:00Z",
+   "edits_total": 1336,
+   "bot_edits": 633,
+   "human_edits": 703,
+   "bot_share": 0.4738
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-26T23:00:00Z",
+   "edits_total": 8292,
+   "bot_edits": 2462,
+   "human_edits": 5830,
+   "bot_share": 0.2969
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-26T23:00:00Z",
+   "edits_total": 652,
+   "bot_edits": 128,
+   "human_edits": 524,
+   "bot_share": 0.1963
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-26T23:00:00Z",
+   "edits_total": 1133,
+   "bot_edits": 600,
+   "human_edits": 533,
+   "bot_share": 0.5296
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-26T23:00:00Z",
+   "edits_total": 426,
+   "bot_edits": 84,
+   "human_edits": 342,
+   "bot_share": 0.1972
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T00:00:00Z",
+   "edits_total": 1208,
+   "bot_edits": 618,
+   "human_edits": 590,
+   "bot_share": 0.5116
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T00:00:00Z",
+   "edits_total": 9905,
+   "bot_edits": 3082,
+   "human_edits": 6823,
+   "bot_share": 0.3112
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T00:00:00Z",
+   "edits_total": 804,
+   "bot_edits": 158,
+   "human_edits": 646,
+   "bot_share": 0.1965
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T00:00:00Z",
+   "edits_total": 1079,
+   "bot_edits": 594,
+   "human_edits": 485,
+   "bot_share": 0.5505
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T00:00:00Z",
+   "edits_total": 451,
+   "bot_edits": 113,
+   "human_edits": 338,
+   "bot_share": 0.2506
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T01:00:00Z",
+   "edits_total": 895,
+   "bot_edits": 634,
+   "human_edits": 261,
+   "bot_share": 0.7084
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T01:00:00Z",
+   "edits_total": 9030,
+   "bot_edits": 1674,
+   "human_edits": 7356,
+   "bot_share": 0.1854
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T01:00:00Z",
+   "edits_total": 1037,
+   "bot_edits": 186,
+   "human_edits": 851,
+   "bot_share": 0.1794
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T01:00:00Z",
+   "edits_total": 898,
+   "bot_edits": 573,
+   "human_edits": 325,
+   "bot_share": 0.6381
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T01:00:00Z",
+   "edits_total": 469,
+   "bot_edits": 36,
+   "human_edits": 433,
+   "bot_share": 0.0768
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T02:00:00Z",
+   "edits_total": 824,
+   "bot_edits": 674,
+   "human_edits": 150,
+   "bot_share": 0.818
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T02:00:00Z",
+   "edits_total": 8381,
+   "bot_edits": 2162,
+   "human_edits": 6219,
+   "bot_share": 0.258
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T02:00:00Z",
+   "edits_total": 646,
+   "bot_edits": 97,
+   "human_edits": 549,
+   "bot_share": 0.1502
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T02:00:00Z",
+   "edits_total": 912,
+   "bot_edits": 683,
+   "human_edits": 229,
+   "bot_share": 0.7489
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T02:00:00Z",
+   "edits_total": 607,
+   "bot_edits": 63,
+   "human_edits": 544,
+   "bot_share": 0.1038
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T03:00:00Z",
+   "edits_total": 1062,
+   "bot_edits": 953,
+   "human_edits": 109,
+   "bot_share": 0.8974
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T03:00:00Z",
+   "edits_total": 8083,
+   "bot_edits": 1792,
+   "human_edits": 6291,
+   "bot_share": 0.2217
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T03:00:00Z",
+   "edits_total": 544,
+   "bot_edits": 156,
+   "human_edits": 388,
+   "bot_share": 0.2868
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T03:00:00Z",
+   "edits_total": 573,
+   "bot_edits": 325,
+   "human_edits": 248,
+   "bot_share": 0.5672
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T03:00:00Z",
+   "edits_total": 593,
+   "bot_edits": 77,
+   "human_edits": 516,
+   "bot_share": 0.1298
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T04:00:00Z",
+   "edits_total": 1015,
+   "bot_edits": 787,
+   "human_edits": 228,
+   "bot_share": 0.7754
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T04:00:00Z",
+   "edits_total": 8701,
+   "bot_edits": 1357,
+   "human_edits": 7344,
+   "bot_share": 0.156
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T04:00:00Z",
+   "edits_total": 394,
+   "bot_edits": 117,
+   "human_edits": 277,
+   "bot_share": 0.297
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T04:00:00Z",
+   "edits_total": 665,
+   "bot_edits": 398,
+   "human_edits": 267,
+   "bot_share": 0.5985
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T04:00:00Z",
+   "edits_total": 464,
+   "bot_edits": 87,
+   "human_edits": 377,
+   "bot_share": 0.1875
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T05:00:00Z",
+   "edits_total": 677,
+   "bot_edits": 318,
+   "human_edits": 359,
+   "bot_share": 0.4697
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T05:00:00Z",
+   "edits_total": 6239,
+   "bot_edits": 513,
+   "human_edits": 5726,
+   "bot_share": 0.0822
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T05:00:00Z",
+   "edits_total": 360,
+   "bot_edits": 101,
+   "human_edits": 259,
+   "bot_share": 0.2806
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T05:00:00Z",
+   "edits_total": 722,
+   "bot_edits": 487,
+   "human_edits": 235,
+   "bot_share": 0.6745
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T05:00:00Z",
+   "edits_total": 538,
+   "bot_edits": 85,
+   "human_edits": 453,
+   "bot_share": 0.158
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T06:00:00Z",
+   "edits_total": 672,
+   "bot_edits": 193,
+   "human_edits": 479,
+   "bot_share": 0.2872
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T06:00:00Z",
+   "edits_total": 6601,
+   "bot_edits": 1214,
+   "human_edits": 5387,
+   "bot_share": 0.1839
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T06:00:00Z",
+   "edits_total": 295,
+   "bot_edits": 43,
+   "human_edits": 252,
+   "bot_share": 0.1458
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T06:00:00Z",
+   "edits_total": 915,
+   "bot_edits": 346,
+   "human_edits": 569,
+   "bot_share": 0.3781
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T06:00:00Z",
+   "edits_total": 579,
+   "bot_edits": 102,
+   "human_edits": 477,
+   "bot_share": 0.1762
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T07:00:00Z",
+   "edits_total": 1328,
+   "bot_edits": 462,
+   "human_edits": 866,
+   "bot_share": 0.3479
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T07:00:00Z",
+   "edits_total": 6587,
+   "bot_edits": 1450,
+   "human_edits": 5137,
+   "bot_share": 0.2201
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T07:00:00Z",
+   "edits_total": 375,
+   "bot_edits": 66,
+   "human_edits": 309,
+   "bot_share": 0.176
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T07:00:00Z",
+   "edits_total": 816,
+   "bot_edits": 296,
+   "human_edits": 520,
+   "bot_share": 0.3627
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T07:00:00Z",
+   "edits_total": 540,
+   "bot_edits": 92,
+   "human_edits": 448,
+   "bot_share": 0.1704
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T08:00:00Z",
+   "edits_total": 1135,
+   "bot_edits": 216,
+   "human_edits": 919,
+   "bot_share": 0.1903
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T08:00:00Z",
+   "edits_total": 6505,
+   "bot_edits": 1664,
+   "human_edits": 4841,
+   "bot_share": 0.2558
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T08:00:00Z",
+   "edits_total": 559,
+   "bot_edits": 101,
+   "human_edits": 458,
+   "bot_share": 0.1807
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T08:00:00Z",
+   "edits_total": 1181,
+   "bot_edits": 431,
+   "human_edits": 750,
+   "bot_share": 0.3649
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T08:00:00Z",
+   "edits_total": 631,
+   "bot_edits": 124,
+   "human_edits": 507,
+   "bot_share": 0.1965
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T09:00:00Z",
+   "edits_total": 1177,
+   "bot_edits": 156,
+   "human_edits": 1021,
+   "bot_share": 0.1325
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T09:00:00Z",
+   "edits_total": 7078,
+   "bot_edits": 1422,
+   "human_edits": 5656,
+   "bot_share": 0.2009
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T09:00:00Z",
+   "edits_total": 332,
+   "bot_edits": 61,
+   "human_edits": 271,
+   "bot_share": 0.1837
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T09:00:00Z",
+   "edits_total": 1607,
+   "bot_edits": 358,
+   "human_edits": 1249,
+   "bot_share": 0.2228
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T09:00:00Z",
+   "edits_total": 594,
+   "bot_edits": 112,
+   "human_edits": 482,
+   "bot_share": 0.1886
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T10:00:00Z",
+   "edits_total": 1508,
+   "bot_edits": 149,
+   "human_edits": 1359,
+   "bot_share": 0.0988
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T10:00:00Z",
+   "edits_total": 7823,
+   "bot_edits": 1436,
+   "human_edits": 6387,
+   "bot_share": 0.1836
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T10:00:00Z",
+   "edits_total": 379,
+   "bot_edits": 90,
+   "human_edits": 289,
+   "bot_share": 0.2375
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T10:00:00Z",
+   "edits_total": 1682,
+   "bot_edits": 564,
+   "human_edits": 1118,
+   "bot_share": 0.3353
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T10:00:00Z",
+   "edits_total": 508,
+   "bot_edits": 63,
+   "human_edits": 445,
+   "bot_share": 0.124
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T11:00:00Z",
+   "edits_total": 1058,
+   "bot_edits": 163,
+   "human_edits": 895,
+   "bot_share": 0.1541
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T11:00:00Z",
+   "edits_total": 9306,
+   "bot_edits": 1411,
+   "human_edits": 7895,
+   "bot_share": 0.1516
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T11:00:00Z",
+   "edits_total": 392,
+   "bot_edits": 94,
+   "human_edits": 298,
+   "bot_share": 0.2398
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T11:00:00Z",
+   "edits_total": 1238,
+   "bot_edits": 365,
+   "human_edits": 873,
+   "bot_share": 0.2948
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T11:00:00Z",
+   "edits_total": 734,
+   "bot_edits": 40,
+   "human_edits": 694,
+   "bot_share": 0.0545
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T12:00:00Z",
+   "edits_total": 1184,
+   "bot_edits": 136,
+   "human_edits": 1048,
+   "bot_share": 0.1149
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T12:00:00Z",
+   "edits_total": 9240,
+   "bot_edits": 1869,
+   "human_edits": 7371,
+   "bot_share": 0.2023
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T12:00:00Z",
+   "edits_total": 586,
+   "bot_edits": 165,
+   "human_edits": 421,
+   "bot_share": 0.2816
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T12:00:00Z",
+   "edits_total": 1218,
+   "bot_edits": 335,
+   "human_edits": 883,
+   "bot_share": 0.275
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T12:00:00Z",
+   "edits_total": 815,
+   "bot_edits": 41,
+   "human_edits": 774,
+   "bot_share": 0.0503
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T13:00:00Z",
+   "edits_total": 1270,
+   "bot_edits": 115,
+   "human_edits": 1155,
+   "bot_share": 0.0906
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T13:00:00Z",
+   "edits_total": 9506,
+   "bot_edits": 3839,
+   "human_edits": 5667,
+   "bot_share": 0.4039
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T13:00:00Z",
+   "edits_total": 481,
+   "bot_edits": 87,
+   "human_edits": 394,
+   "bot_share": 0.1809
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T13:00:00Z",
+   "edits_total": 1252,
+   "bot_edits": 294,
+   "human_edits": 958,
+   "bot_share": 0.2348
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T13:00:00Z",
+   "edits_total": 889,
+   "bot_edits": 110,
+   "human_edits": 779,
+   "bot_share": 0.1237
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T14:00:00Z",
+   "edits_total": 1514,
+   "bot_edits": 284,
+   "human_edits": 1230,
+   "bot_share": 0.1876
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T14:00:00Z",
+   "edits_total": 9407,
+   "bot_edits": 3925,
+   "human_edits": 5482,
+   "bot_share": 0.4172
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T14:00:00Z",
+   "edits_total": 689,
+   "bot_edits": 67,
+   "human_edits": 622,
+   "bot_share": 0.0972
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T14:00:00Z",
+   "edits_total": 1374,
+   "bot_edits": 337,
+   "human_edits": 1037,
+   "bot_share": 0.2453
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T14:00:00Z",
+   "edits_total": 782,
+   "bot_edits": 125,
+   "human_edits": 657,
+   "bot_share": 0.1598
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T15:00:00Z",
+   "edits_total": 1217,
+   "bot_edits": 119,
+   "human_edits": 1098,
+   "bot_share": 0.0978
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T15:00:00Z",
+   "edits_total": 8202,
+   "bot_edits": 2376,
+   "human_edits": 5826,
+   "bot_share": 0.2897
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T15:00:00Z",
+   "edits_total": 775,
+   "bot_edits": 64,
+   "human_edits": 711,
+   "bot_share": 0.0826
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T15:00:00Z",
+   "edits_total": 1580,
+   "bot_edits": 329,
+   "human_edits": 1251,
+   "bot_share": 0.2082
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T15:00:00Z",
+   "edits_total": 834,
+   "bot_edits": 119,
+   "human_edits": 715,
+   "bot_share": 0.1427
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T16:00:00Z",
+   "edits_total": 1240,
+   "bot_edits": 84,
+   "human_edits": 1156,
+   "bot_share": 0.0677
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T16:00:00Z",
+   "edits_total": 6991,
+   "bot_edits": 1702,
+   "human_edits": 5289,
+   "bot_share": 0.2435
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T16:00:00Z",
+   "edits_total": 603,
+   "bot_edits": 73,
+   "human_edits": 530,
+   "bot_share": 0.1211
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T16:00:00Z",
+   "edits_total": 1717,
+   "bot_edits": 375,
+   "human_edits": 1342,
+   "bot_share": 0.2184
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T16:00:00Z",
+   "edits_total": 544,
+   "bot_edits": 118,
+   "human_edits": 426,
+   "bot_share": 0.2169
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T17:00:00Z",
+   "edits_total": 1017,
+   "bot_edits": 93,
+   "human_edits": 924,
+   "bot_share": 0.0914
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T17:00:00Z",
+   "edits_total": 7327,
+   "bot_edits": 1919,
+   "human_edits": 5408,
+   "bot_share": 0.2619
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T17:00:00Z",
+   "edits_total": 661,
+   "bot_edits": 54,
+   "human_edits": 607,
+   "bot_share": 0.0817
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T17:00:00Z",
+   "edits_total": 1307,
+   "bot_edits": 381,
+   "human_edits": 926,
+   "bot_share": 0.2915
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T17:00:00Z",
+   "edits_total": 405,
+   "bot_edits": 106,
+   "human_edits": 299,
+   "bot_share": 0.2617
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T18:00:00Z",
+   "edits_total": 1117,
+   "bot_edits": 111,
+   "human_edits": 1006,
+   "bot_share": 0.0994
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T18:00:00Z",
+   "edits_total": 7215,
+   "bot_edits": 1783,
+   "human_edits": 5432,
+   "bot_share": 0.2471
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T18:00:00Z",
+   "edits_total": 671,
+   "bot_edits": 52,
+   "human_edits": 619,
+   "bot_share": 0.0775
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T18:00:00Z",
+   "edits_total": 1168,
+   "bot_edits": 352,
+   "human_edits": 816,
+   "bot_share": 0.3014
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T18:00:00Z",
+   "edits_total": 379,
+   "bot_edits": 86,
+   "human_edits": 293,
+   "bot_share": 0.2269
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T19:00:00Z",
+   "edits_total": 1085,
+   "bot_edits": 143,
+   "human_edits": 942,
+   "bot_share": 0.1318
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T19:00:00Z",
+   "edits_total": 8019,
+   "bot_edits": 2264,
+   "human_edits": 5755,
+   "bot_share": 0.2823
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T19:00:00Z",
+   "edits_total": 674,
+   "bot_edits": 106,
+   "human_edits": 568,
+   "bot_share": 0.1573
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T19:00:00Z",
+   "edits_total": 1132,
+   "bot_edits": 195,
+   "human_edits": 937,
+   "bot_share": 0.1723
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T19:00:00Z",
+   "edits_total": 297,
+   "bot_edits": 98,
+   "human_edits": 199,
+   "bot_share": 0.33
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T20:00:00Z",
+   "edits_total": 843,
+   "bot_edits": 82,
+   "human_edits": 761,
+   "bot_share": 0.0973
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T20:00:00Z",
+   "edits_total": 7616,
+   "bot_edits": 2059,
+   "human_edits": 5557,
+   "bot_share": 0.2704
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T20:00:00Z",
+   "edits_total": 648,
+   "bot_edits": 125,
+   "human_edits": 523,
+   "bot_share": 0.1929
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T20:00:00Z",
+   "edits_total": 992,
+   "bot_edits": 100,
+   "human_edits": 892,
+   "bot_share": 0.1008
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T20:00:00Z",
+   "edits_total": 380,
+   "bot_edits": 122,
+   "human_edits": 258,
+   "bot_share": 0.3211
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T21:00:00Z",
+   "edits_total": 792,
+   "bot_edits": 100,
+   "human_edits": 692,
+   "bot_share": 0.1263
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T21:00:00Z",
+   "edits_total": 9644,
+   "bot_edits": 1943,
+   "human_edits": 7701,
+   "bot_share": 0.2015
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T21:00:00Z",
+   "edits_total": 575,
+   "bot_edits": 36,
+   "human_edits": 539,
+   "bot_share": 0.0626
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T21:00:00Z",
+   "edits_total": 916,
+   "bot_edits": 102,
+   "human_edits": 814,
+   "bot_share": 0.1114
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T21:00:00Z",
+   "edits_total": 521,
+   "bot_edits": 124,
+   "human_edits": 397,
+   "bot_share": 0.238
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T22:00:00Z",
+   "edits_total": 800,
+   "bot_edits": 57,
+   "human_edits": 743,
+   "bot_share": 0.0712
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T22:00:00Z",
+   "edits_total": 9007,
+   "bot_edits": 2805,
+   "human_edits": 6202,
+   "bot_share": 0.3114
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T22:00:00Z",
+   "edits_total": 726,
+   "bot_edits": 148,
+   "human_edits": 578,
+   "bot_share": 0.2039
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T22:00:00Z",
+   "edits_total": 1392,
+   "bot_edits": 343,
+   "human_edits": 1049,
+   "bot_share": 0.2464
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T22:00:00Z",
+   "edits_total": 488,
+   "bot_edits": 110,
+   "human_edits": 378,
+   "bot_share": 0.2254
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-27T23:00:00Z",
+   "edits_total": 1259,
+   "bot_edits": 683,
+   "human_edits": 576,
+   "bot_share": 0.5425
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-27T23:00:00Z",
+   "edits_total": 9165,
+   "bot_edits": 3449,
+   "human_edits": 5716,
+   "bot_share": 0.3763
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-27T23:00:00Z",
+   "edits_total": 595,
+   "bot_edits": 118,
+   "human_edits": 477,
+   "bot_share": 0.1983
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-27T23:00:00Z",
+   "edits_total": 992,
+   "bot_edits": 459,
+   "human_edits": 533,
+   "bot_share": 0.4627
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-27T23:00:00Z",
+   "edits_total": 493,
+   "bot_edits": 93,
+   "human_edits": 400,
+   "bot_share": 0.1886
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T00:00:00Z",
+   "edits_total": 1051,
+   "bot_edits": 625,
+   "human_edits": 426,
+   "bot_share": 0.5947
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T00:00:00Z",
+   "edits_total": 10355,
+   "bot_edits": 2723,
+   "human_edits": 7632,
+   "bot_share": 0.263
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T00:00:00Z",
+   "edits_total": 649,
+   "bot_edits": 180,
+   "human_edits": 469,
+   "bot_share": 0.2773
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T00:00:00Z",
+   "edits_total": 591,
+   "bot_edits": 329,
+   "human_edits": 262,
+   "bot_share": 0.5567
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T00:00:00Z",
+   "edits_total": 639,
+   "bot_edits": 90,
+   "human_edits": 549,
+   "bot_share": 0.1408
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T01:00:00Z",
+   "edits_total": 960,
+   "bot_edits": 634,
+   "human_edits": 326,
+   "bot_share": 0.6604
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T01:00:00Z",
+   "edits_total": 8879,
+   "bot_edits": 2809,
+   "human_edits": 6070,
+   "bot_share": 0.3164
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T01:00:00Z",
+   "edits_total": 656,
+   "bot_edits": 97,
+   "human_edits": 559,
+   "bot_share": 0.1479
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T01:00:00Z",
+   "edits_total": 561,
+   "bot_edits": 335,
+   "human_edits": 226,
+   "bot_share": 0.5971
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T01:00:00Z",
+   "edits_total": 541,
+   "bot_edits": 30,
+   "human_edits": 511,
+   "bot_share": 0.0555
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T02:00:00Z",
+   "edits_total": 866,
+   "bot_edits": 645,
+   "human_edits": 221,
+   "bot_share": 0.7448
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T02:00:00Z",
+   "edits_total": 8642,
+   "bot_edits": 2717,
+   "human_edits": 5925,
+   "bot_share": 0.3144
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T02:00:00Z",
+   "edits_total": 473,
+   "bot_edits": 75,
+   "human_edits": 398,
+   "bot_share": 0.1586
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T02:00:00Z",
+   "edits_total": 633,
+   "bot_edits": 420,
+   "human_edits": 213,
+   "bot_share": 0.6635
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T02:00:00Z",
+   "edits_total": 860,
+   "bot_edits": 98,
+   "human_edits": 762,
+   "bot_share": 0.114
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T03:00:00Z",
+   "edits_total": 1182,
+   "bot_edits": 1013,
+   "human_edits": 169,
+   "bot_share": 0.857
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T03:00:00Z",
+   "edits_total": 8298,
+   "bot_edits": 3284,
+   "human_edits": 5014,
+   "bot_share": 0.3958
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T03:00:00Z",
+   "edits_total": 561,
+   "bot_edits": 38,
+   "human_edits": 523,
+   "bot_share": 0.0677
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T03:00:00Z",
+   "edits_total": 549,
+   "bot_edits": 365,
+   "human_edits": 184,
+   "bot_share": 0.6648
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T03:00:00Z",
+   "edits_total": 737,
+   "bot_edits": 91,
+   "human_edits": 646,
+   "bot_share": 0.1235
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T04:00:00Z",
+   "edits_total": 1040,
+   "bot_edits": 845,
+   "human_edits": 195,
+   "bot_share": 0.8125
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T04:00:00Z",
+   "edits_total": 9771,
+   "bot_edits": 3759,
+   "human_edits": 6012,
+   "bot_share": 0.3847
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T04:00:00Z",
+   "edits_total": 455,
+   "bot_edits": 142,
+   "human_edits": 313,
+   "bot_share": 0.3121
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T04:00:00Z",
+   "edits_total": 510,
+   "bot_edits": 380,
+   "human_edits": 130,
+   "bot_share": 0.7451
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T04:00:00Z",
+   "edits_total": 594,
+   "bot_edits": 107,
+   "human_edits": 487,
+   "bot_share": 0.1801
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T05:00:00Z",
+   "edits_total": 559,
+   "bot_edits": 281,
+   "human_edits": 278,
+   "bot_share": 0.5027
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T05:00:00Z",
+   "edits_total": 9964,
+   "bot_edits": 3854,
+   "human_edits": 6110,
+   "bot_share": 0.3868
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T05:00:00Z",
+   "edits_total": 322,
+   "bot_edits": 64,
+   "human_edits": 258,
+   "bot_share": 0.1988
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T05:00:00Z",
+   "edits_total": 486,
+   "bot_edits": 253,
+   "human_edits": 233,
+   "bot_share": 0.5206
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T05:00:00Z",
+   "edits_total": 659,
+   "bot_edits": 77,
+   "human_edits": 582,
+   "bot_share": 0.1168
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T06:00:00Z",
+   "edits_total": 643,
+   "bot_edits": 143,
+   "human_edits": 500,
+   "bot_share": 0.2224
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T06:00:00Z",
+   "edits_total": 8180,
+   "bot_edits": 3957,
+   "human_edits": 4223,
+   "bot_share": 0.4837
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T06:00:00Z",
+   "edits_total": 340,
+   "bot_edits": 125,
+   "human_edits": 215,
+   "bot_share": 0.3676
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T06:00:00Z",
+   "edits_total": 368,
+   "bot_edits": 109,
+   "human_edits": 259,
+   "bot_share": 0.2962
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T06:00:00Z",
+   "edits_total": 632,
+   "bot_edits": 106,
+   "human_edits": 526,
+   "bot_share": 0.1677
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T07:00:00Z",
+   "edits_total": 1374,
+   "bot_edits": 372,
+   "human_edits": 1002,
+   "bot_share": 0.2707
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T07:00:00Z",
+   "edits_total": 9021,
+   "bot_edits": 4761,
+   "human_edits": 4260,
+   "bot_share": 0.5278
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T07:00:00Z",
+   "edits_total": 368,
+   "bot_edits": 107,
+   "human_edits": 261,
+   "bot_share": 0.2908
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T07:00:00Z",
+   "edits_total": 496,
+   "bot_edits": 80,
+   "human_edits": 416,
+   "bot_share": 0.1613
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T07:00:00Z",
+   "edits_total": 618,
+   "bot_edits": 62,
+   "human_edits": 556,
+   "bot_share": 0.1003
+  },
+  {
+   "wiki": "dewiki",
+   "hour_ts": "2026-11-28T08:00:00Z",
+   "edits_total": 183,
+   "bot_edits": 36,
+   "human_edits": 147,
+   "bot_share": 0.1967
+  },
+  {
+   "wiki": "enwiki",
+   "hour_ts": "2026-11-28T08:00:00Z",
+   "edits_total": 2617,
+   "bot_edits": 1248,
+   "human_edits": 1369,
+   "bot_share": 0.4769
+  },
+  {
+   "wiki": "eswiki",
+   "hour_ts": "2026-11-28T08:00:00Z",
+   "edits_total": 60,
+   "bot_edits": 18,
+   "human_edits": 42,
+   "bot_share": 0.3
+  },
+  {
+   "wiki": "frwiki",
+   "hour_ts": "2026-11-28T08:00:00Z",
+   "edits_total": 226,
+   "bot_edits": 87,
+   "human_edits": 139,
+   "bot_share": 0.385
+  },
+  {
+   "wiki": "jawiki",
+   "hour_ts": "2026-11-28T08:00:00Z",
+   "edits_total": 126,
+   "bot_edits": 7,
+   "human_edits": 119,
+   "bot_share": 0.0556
+  }
+ ]
+}
